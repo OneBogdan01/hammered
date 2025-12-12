@@ -22,7 +22,7 @@ void hm::log::Logger::Log(Level level, std::string_view msg)
   if (level < m_level)
     return;
 
-  std::scoped_lock lock(m_mutex);
+  // std::scoped_lock lock(m_mutex);
   for (const auto& sink : m_sinks)
   {
     sink->Sink({level, m_name, msg});
@@ -30,7 +30,7 @@ void hm::log::Logger::Log(Level level, std::string_view msg)
 }
 void hm::log::Logger::Flush()
 {
-  std::lock_guard lock(m_mutex);
+  // std::lock_guard lock(m_mutex);
   for (auto& sink : m_sinks)
   {
     sink->Flush();
