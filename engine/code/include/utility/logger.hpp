@@ -84,7 +84,7 @@ struct Logger
  private:
   std::string m_name {"Global"};
   Level m_level {Level::Debug};
-  // std::mutex m_mutex;
+  std::mutex m_mutex;
 };
 inline Logger& GetGlobalLogger()
 {

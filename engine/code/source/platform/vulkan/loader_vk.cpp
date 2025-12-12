@@ -233,12 +233,11 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
             indices.push_back(static_cast<uint32_t>(data[i]) + initialVtx);
             if (i % 100 == 0)
             {
-              /*pool.QueueJob(
+              pool.QueueJob(
                   [i, idx = indices.back()]()
                   {
                     log::Debug("    Index[{}]: {}", i, idx);
-                  });*/
-              log::Debug("    Index[{}]: {}", i, indices.back());
+                  });
             }
           }
         };

@@ -50,7 +50,7 @@ void ThreadPool::ThreadLoop()
 void ThreadPool::QueueJob(const std::function<void()>& job)
 {
   {
-    std::unique_lock lock(queue_mutex);
+    std::scoped_lock lock(queue_mutex);
     jobs.push(job);
   }
   mutex_condition.notify_one();
@@ -58,7 +58,7 @@ void ThreadPool::QueueJob(const std::function<void()>& job)
 void ThreadPool::Shutdown()
 {
   {
-    std::unique_lock lock(queue_mutex);
+    std::scoped_lock lock(queue_mutex);
     should_terminate = true;
   }
   mutex_condition.notify_all();
@@ -72,7 +72,7 @@ bool ThreadPool::Busy()
 {
   bool poolbusy;
   {
-    std::unique_lock lock(queue_mutex);
+    std::scoped_lock lock(queue_mutex);
     poolbusy = !jobs.empty() || m_activeJobs > 0;
   }
   return poolbusy;
