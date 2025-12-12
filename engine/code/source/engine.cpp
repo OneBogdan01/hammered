@@ -30,6 +30,8 @@ void Engine::Init()
       m_pEntityComponentSystem->CreateSystem<Camera>("Camera Editor");
   m_pInput->AddInputHandler(camera);
 
+  GetGlobalLogger().m_sinks.emplace_back(std::make_unique<FileSink>("log.txt"));
+  GetGlobalLogger().m_sinks.emplace_back(std::make_unique<ConsoleSink>());
   Logger logger;
   // console
   logger.m_sinks.emplace_back(std::make_unique<ConsoleSink>());

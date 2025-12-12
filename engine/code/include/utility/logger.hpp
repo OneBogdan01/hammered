@@ -9,9 +9,10 @@ namespace hm::log
 {
 enum class Level
 {
+  Debug,
   Info,
   Warning,
-  Error
+  Error,
 };
 namespace color
 {
@@ -21,39 +22,10 @@ constexpr const char* red = "\033[31m";
 constexpr const char* yellow = "\033[33m";
 constexpr const char* purple = "\033[37m";
 } // namespace color
-template<typename... T>
-static void Info(std::format_string<T...> fs, T&&... args)
-{
-  HM_ZONE_SCOPED_N("Log::Info");
-  std::print("{}[Info]{} {}\n", color::green, color::reset,
-             std::format(fs, std::forward<T>(args)...));
-}
-
-template<typename... T>
-static void Error(std::format_string<T...> fs, T&&... args)
-{
-  HM_ZONE_SCOPED_N("Log::Error");
-  std::print("{}[Error]{} {}\n", color::red, color::reset,
-             std::format(fs, std::forward<T>(args)...));
-}
-
-template<typename... T>
-static void Warning(std::format_string<T...> fs, T&&... args)
-{
-  HM_ZONE_SCOPED_N("Log::Warning");
-  std::print("{}[Warning]{} {}\n", color::yellow, color::reset,
-             std::format(fs, std::forward<T>(args)...));
-}
-template<typename... T>
-static void Debug(std::format_string<T...> fs, T&&... args)
-{
-  HM_ZONE_SCOPED_N("Log::Debug");
-  std::print("{}[Debug]{} {}\n", color::purple, color::reset,
-             std::format(fs, std::forward<T>(args)...));
-}
 
 struct LogMessage
 {
+  Level level;
   std::string_view loggerName;
   std::string_view payLoad;
 };
@@ -74,36 +46,79 @@ struct FileSink : BaseSink
 };
 struct Logger
 {
-  void Log(const std::string_view& msg)
+  void Log(Level level, std::string_view msg)
   {
+    if (level < m_level)
+      return;
+
+    std::lock_guard lock(m_mutex);
     for (const auto& sink : m_sinks)
     {
-      sink->Sink({m_name, msg});
+      sink->Sink({level, m_name, msg});
     }
   }
   template<typename... T>
   void Info(std::format_string<T...> fs, T&&... args)
   {
-    Log(std::format(fs, std::forward<T>(args)...));
+    HM_ZONE_SCOPED_N("Log::Info");
+    Log(Level::Info, std::format(fs, std::forward<T>(args)...));
   }
 
   template<typename... T>
   void Error(std::format_string<T...> fs, T&&... args)
   {
-    Log(std::format(fs, std::forward<T>(args)...));
+    HM_ZONE_SCOPED_N("Log::Error");
+    Log(Level::Error, std::format(fs, std::forward<T>(args)...));
   }
 
   template<typename... T>
   void Warning(std::format_string<T...> fs, T&&... args)
   {
-    Log(std::format(fs, std::forward<T>(args)...));
+    HM_ZONE_SCOPED_N("Log::Warning");
+    Log(Level::Warning, std::format(fs, std::forward<T>(args)...));
   }
 
+  template<typename... T>
+  void Debug(std::format_string<T...> fs, T&&... args)
+  {
+    HM_ZONE_SCOPED_N("Log::Debug");
+    Log(Level::Debug, std::format(fs, std::forward<T>(args)...));
+  }
   std::vector<std::shared_ptr<BaseSink>> m_sinks;
 
  private:
-  std::string m_name {"Logger"};
-  Level m_level {Level::Info};
+  std::string m_name {"Global"};
+  Level m_level {Level::Debug};
+  std::mutex m_mutex;
 };
+inline Logger& GetGlobalLogger()
+{
+  static Logger instance;
+  return instance;
+}
+
+template<typename... T>
+void Info(std::format_string<T...> fs, T&&... args)
+{
+  GetGlobalLogger().Info(fs, std::forward<T>(args)...);
+}
+
+template<typename... T>
+void Error(std::format_string<T...> fs, T&&... args)
+{
+  GetGlobalLogger().Error(fs, std::forward<T>(args)...);
+}
+
+template<typename... T>
+void Warning(std::format_string<T...> fs, T&&... args)
+{
+  GetGlobalLogger().Warning(fs, std::forward<T>(args)...);
+}
+
+template<typename... T>
+void Debug(std::format_string<T...> fs, T&&... args)
+{
+  GetGlobalLogger().Debug(fs, std::forward<T>(args)...);
+}
 
 } // namespace hm::log
