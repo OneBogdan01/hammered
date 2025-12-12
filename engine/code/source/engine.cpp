@@ -83,6 +83,7 @@ SDL_AppResult Engine::Run()
 
 void Engine::Shutdown()
 {
+  log::Flush();
   Info("Engine is freeing resources");
   delete m_pEntityComponentSystem;
   delete m_pInput;

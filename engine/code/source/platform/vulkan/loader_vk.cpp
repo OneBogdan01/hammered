@@ -259,10 +259,10 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
         meshIndexCount += indexCount;
         HM_ZONE_VALUE(static_cast<int64_t>(indexCount));
       }
-      while (pool.Busy())
-      {
-        std::this_thread::yield();
-      }
+      /* while (pool.Busy())
+       {
+         std::this_thread::yield();
+       }*/
       log::Flush();
       size_t vertexCount = 0;
       {

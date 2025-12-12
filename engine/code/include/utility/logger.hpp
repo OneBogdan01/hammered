@@ -50,6 +50,7 @@ struct FileSink : BaseSink
 struct Logger
 {
   void Log(Level level, std::string_view msg);
+
   void Flush();
   template<typename... T>
   void Info(std::format_string<T...> fs, T&&... args)
@@ -83,7 +84,7 @@ struct Logger
  private:
   std::string m_name {"Global"};
   Level m_level {Level::Debug};
-  //std::mutex m_mutex;
+  // std::mutex m_mutex;
 };
 inline Logger& GetGlobalLogger()
 {
