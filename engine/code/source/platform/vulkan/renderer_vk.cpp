@@ -13,7 +13,6 @@
 #include "core/device.hpp"
 #include "core/fileio.hpp"
 #include "external/imgui_impl.hpp"
-#include "external/tracy_impl.hpp"
 #include "glslang/Public/ShaderLang.h"
 #include "platform/vulkan/images_vk.hpp"
 #include "platform/vulkan/initializers_vk.hpp"
@@ -546,23 +545,19 @@ void internal::init_default_data()
 }
 void gpx::Renderer::load_test_model()
 {
+  auto gameMeshes =
+      loadGltfMeshes(io::GetPath("models/a_beautiful_game.glb")).value();
+  for (auto& m : gameMeshes)
   {
-    HM_ZONE_SCOPED_N("Load Beautiful Game Meshes");
-    auto gameMeshes =
-        loadGltfMeshes(io::GetPath("models/a_beautiful_game.glb")).value();
-    HM_ZONE_VALUE(static_cast<int64_t>(gameMeshes.size()));
-    for (auto& m : gameMeshes)
+    std::shared_ptr<MeshNode> newNode = std::make_shared<MeshNode>();
+    newNode->mesh = m;
+    newNode->localTransform = glm::mat4 {1.f * 10};
+    newNode->worldTransform = glm::mat4 {1.f};
+    for (auto& s : newNode->mesh->surfaces)
     {
-      std::shared_ptr<MeshNode> newNode = std::make_shared<MeshNode>();
-      newNode->mesh = m;
-      newNode->localTransform = glm::mat4 {1.f * 10};
-      newNode->worldTransform = glm::mat4 {1.f};
-      for (auto& s : newNode->mesh->surfaces)
-      {
-        s.material = std::make_shared<GLTFMaterial>(defaultData);
-      }
-      loadedNodes[m->name] = std::move(newNode);
+      s.material = std::make_shared<GLTFMaterial>(defaultData);
     }
+    loadedNodes[m->name] = std::move(newNode);
   }
 }
 void internal::init_mesh_pipeline()
@@ -809,6 +804,7 @@ void hm::gpx::Renderer::Render()
 
   // increase the number of frames drawn
   _frameNumber++;
+  HM_FRAME_MARK;
 }
 
 void internal::draw_geometry(VkCommandBuffer cmd)

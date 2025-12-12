@@ -4,7 +4,6 @@
 
 #include "engine.hpp"
 #include "SDL3/SDL_assert.h"
-#include "external/tracy_impl.hpp"
 
 #include "utility/logger.hpp"
 #include <stb_image.h>
@@ -138,9 +137,6 @@ VkSamplerMipmapMode extract_mipmap_mode(int32_t filter)
 std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
     const std::filesystem::path& filePath)
 {
-  HM_ZONE_SCOPED;
-  HM_ZONE_TEXT(filePath.string().c_str(), filePath.string().size());
-
   auto& pool = Engine::Instance().GetThreadPool();
   hm::log::Info("=== Loading GLTF: {} ===", filePath.string());
 
@@ -186,6 +182,7 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
   size_t totalVertices = 0;
   size_t totalIndices = 0;
   size_t totalPrimitives = 0;
+  HM_ZONE_SCOPED_N("Loading model");
 
   for (size_t meshIdx = 0; meshIdx < model.meshes.size(); ++meshIdx)
   {
@@ -262,7 +259,10 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
         HM_ZONE_VALUE(static_cast<int64_t>(indexCount));
       }
       while (pool.Busy())
-        log::Flush();
+      {
+        std::this_thread::yield();
+      }
+      log::Flush();
       size_t vertexCount = 0;
       {
         HM_ZONE_SCOPED_N("Parse Positions");

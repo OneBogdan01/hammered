@@ -16,6 +16,7 @@
 #include <stb_image.h>
 
 #include "utility/macros.hpp"
+#include "external/tracy_impl.hpp"
 
 using i8 = int8_t;
 using i16 = int16_t;

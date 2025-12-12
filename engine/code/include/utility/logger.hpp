@@ -1,6 +1,5 @@
 #pragma once
 #include "core/thread_pool.hpp"
-#include "external/tracy_impl.hpp"
 
 #include <print>
 #include <format>

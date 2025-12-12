@@ -171,10 +171,13 @@ void hm::Profiler::display()
     if (ImGui::Button("Start test"))
     {
       launch_capture();
-      hm::Engine::Instance()
-          .GetECS()
-          .GetSystem<hm::gpx::Renderer>()
-          .load_test_model();
+
+      {
+        hm::Engine::Instance()
+            .GetECS()
+            .GetSystem<hm::gpx::Renderer>()
+            .load_test_model();
+      }
     }
     if (ImGui::CollapsingHeader("Profiler", ImGuiTreeNodeFlags_DefaultOpen))
     {
