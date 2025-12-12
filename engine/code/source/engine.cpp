@@ -4,7 +4,9 @@
 #include "core/input.hpp"
 #include "camera.hpp"
 #include "core/device.hpp"
+#include "external/imgui_impl.hpp"
 #include "utility/logger.hpp"
+#include "utility/profiler_tracy.hpp"
 
 #include <chrono>
 
@@ -20,6 +22,8 @@ Engine& Engine::Instance()
 
 void Engine::Init()
 {
+  m_pThreadPool = new ThreadPool();
+
   m_pDevice = new Device();
   m_pInput = new input::Input();
 
@@ -32,15 +36,6 @@ void Engine::Init()
 
   GetGlobalLogger().m_sinks.emplace_back(std::make_unique<FileSink>("log.txt"));
   GetGlobalLogger().m_sinks.emplace_back(std::make_unique<ConsoleSink>());
-  Logger logger;
-  // console
-  logger.m_sinks.emplace_back(std::make_unique<ConsoleSink>());
-  // file
-
-  logger.Warning("Warning");
-  logger.Info("Some info");
-  logger.m_sinks.emplace_back(std::make_unique<FileSink>("log.txt"));
-  logger.Info("Will log to both of the sinks");
 }
 
 SDL_AppResult Engine::Run()
@@ -69,8 +64,14 @@ SDL_AppResult Engine::Run()
 
   // m_pDevice->Render();
   // TODO add delta time
+  static Profiler profiler;
+  // TODO move somewhere else
+  external::ImGuiStartFrame();
+
+  profiler.display();
   m_pEntityComponentSystem->UpdateSystems(0.1f);
   m_pEntityComponentSystem->RenderSystems();
+
   m_pDevice->EndFrame();
   auto end = std::chrono::system_clock::now();
   // convert to microseconds (integer), and then come back to miliseconds
@@ -87,5 +88,6 @@ void Engine::Shutdown()
   delete m_pInput;
 
   delete m_pDevice;
+  delete m_pThreadPool;
   Info("Engine is closed");
 }

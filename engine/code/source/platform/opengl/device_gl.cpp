@@ -54,7 +54,7 @@ void Device::Initialize()
     log::Error("Failed to initialize GLAD");
     return;
   }
-  log::Info("GPU used: {}",
+    hm::log::Info("GPU used: {}",
             reinterpret_cast<const char*>(glGetString(GL_RENDERER)));
 
 #ifdef DEBUG
@@ -67,7 +67,7 @@ void Device::Initialize()
   glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE,
                         GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 
-  log::Info("OpenGL debug output enabled.");
+    hm::log::Info("OpenGL debug output enabled.");
 
 #endif
   external::ImGuiInitialize();

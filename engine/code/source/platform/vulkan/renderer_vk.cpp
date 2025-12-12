@@ -543,6 +543,9 @@ void internal::init_default_data()
 
     loadedScenes["structure"] = *structureFile;
   }
+}
+void gpx::Renderer::load_test_model()
+{
   {
     HM_ZONE_SCOPED_N("Load Beautiful Game Meshes");
     auto gameMeshes =
@@ -573,7 +576,7 @@ void internal::init_mesh_pipeline()
   }
   else
   {
-    log::Info("Triangle fragment shader succesfully loaded");
+    hm::log::Info("Triangle fragment shader succesfully loaded");
   }
 
   VkShaderModule triangleVertexShader;
@@ -585,7 +588,7 @@ void internal::init_mesh_pipeline()
   }
   else
   {
-    log::Info("Triangle vertex shader succesfully loaded");
+    hm::log::Info("Triangle vertex shader succesfully loaded");
   }
 
   VkPushConstantRange bufferRange {};
@@ -646,7 +649,6 @@ void internal::init_mesh_pipeline()
 void hm::gpx::Renderer::Update(f32 dt) {}
 void hm::gpx::Renderer::Render()
 {
-  external::ImGuiStartFrame();
   // some imgui UI to test
   ImGui::ShowDemoWindow();
   ImGui::Begin("Stats");
@@ -1154,7 +1156,6 @@ void internal::update_scene(Camera& mainCamera)
   {
     node->Draw(glm::mat4 {1.f}, mainDrawContext);
   }
-  loadedNodes["Suzanne"]->Draw(glm::mat4 {1.f}, mainDrawContext);
 
   glm::mat4 view = mainCamera.getViewMatrix();
 

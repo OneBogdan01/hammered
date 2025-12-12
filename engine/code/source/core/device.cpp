@@ -32,9 +32,9 @@ Device::Device()
 #endif
   Initialize();
   // TODO check if init failed
-  log::Info("Hammered Engine was initialized");
+    hm::log::Info("Hammered Engine was initialized");
 #ifdef HM_EDITOR
-  log::Info("Hammered Editor is included initialized");
+    hm::log::Info("Hammered Editor is included initialized");
 
 #endif
 }

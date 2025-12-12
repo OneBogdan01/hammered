@@ -2,6 +2,7 @@
 #include "platform/vulkan/loader_vk.hpp"
 // TODO replace with ktx
 
+#include "engine.hpp"
 #include "SDL3/SDL_assert.h"
 #include "external/tracy_impl.hpp"
 
@@ -140,7 +141,8 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
   HM_ZONE_SCOPED;
   HM_ZONE_TEXT(filePath.string().c_str(), filePath.string().size());
 
-  log::Info("=== Loading GLTF: {} ===", filePath.string());
+  auto& pool = Engine::Instance().GetThreadPool();
+  hm::log::Info("=== Loading GLTF: {} ===", filePath.string());
 
   Model model;
   TinyGLTF loader;
@@ -155,7 +157,7 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
     auto end = std::chrono::high_resolution_clock::now();
     auto duration =
         std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-    log::Info("  Binary load: {} us", duration.count());
+    hm::log::Info("  Binary load: {} us", duration.count());
   }
 
   if (!warn.empty())
@@ -173,8 +175,9 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
     return {};
   }
 
-  log::Info("  Found {} mesh(es), {} buffer(s), {} accessor(s)",
-            model.meshes.size(), model.buffers.size(), model.accessors.size());
+  hm::log::Info("  Found {} mesh(es), {} buffer(s), {} accessor(s)",
+                model.meshes.size(), model.buffers.size(),
+                model.accessors.size());
 
   std::vector<std::shared_ptr<MeshAsset>> meshes;
   std::vector<uint32_t> indices;
@@ -192,7 +195,7 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
 
     auto meshStart = std::chrono::high_resolution_clock::now();
 
-    log::Info("  Processing mesh [{}]: '{}'", meshIdx, mesh.name);
+    hm::log::Info("  Processing mesh [{}]: '{}'", meshIdx, mesh.name);
 
     MeshAsset meshAsset;
     meshAsset.name = mesh.name;
@@ -233,7 +236,11 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
             indices.push_back(static_cast<uint32_t>(data[i]) + initialVtx);
             if (i % 100 == 0)
             {
-              log::Debug("    Index[{}]: {}", i, indices.back());
+              pool.QueueJob(
+                  [i, idx = indices.back()]()
+                  {
+                    log::Debug("    Index[{}]: {}", i, idx);
+                  });
             }
           }
         };
@@ -254,7 +261,8 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
         meshIndexCount += indexCount;
         HM_ZONE_VALUE(static_cast<int64_t>(indexCount));
       }
-
+      while (pool.Busy())
+        log::Flush();
       size_t vertexCount = 0;
       {
         HM_ZONE_SCOPED_N("Parse Positions");
@@ -349,8 +357,8 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
         }
       }
 
-      log::Info("    Primitive [{}]: {} vertices, {} indices", primIdx,
-                vertexCount, newSurface.count);
+      hm::log::Info("    Primitive [{}]: {} vertices, {} indices", primIdx,
+                    vertexCount, newSurface.count);
 
       meshAsset.surfaces.push_back(newSurface);
     }
@@ -374,7 +382,7 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
       auto uploadDuration =
           std::chrono::duration_cast<std::chrono::microseconds>(uploadEnd -
                                                                 uploadStart);
-      log::Info("    GPU upload: {} us", uploadDuration.count());
+      hm::log::Info("    GPU upload: {} us", uploadDuration.count());
     }
 
     meshes.emplace_back(std::make_shared<MeshAsset>(std::move(meshAsset)));
@@ -386,21 +394,21 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
     totalVertices += meshVertexCount;
     totalIndices += meshIndexCount;
 
-    log::Info("    Mesh '{}': {} primitives, {} verts, {} indices ({} us)",
-              mesh.name, mesh.primitives.size(), meshVertexCount,
-              meshIndexCount, meshDuration.count());
+    hm::log::Info("    Mesh '{}': {} primitives, {} verts, {} indices ({} us)",
+                  mesh.name, mesh.primitives.size(), meshVertexCount,
+                  meshIndexCount, meshDuration.count());
   }
 
-  log::Info("=== GLTF Load Summary ===");
-  log::Info("  File: {}", filePath.filename().string());
-  log::Info("  Meshes: {}", meshes.size());
-  log::Info("  Primitives: {}", totalPrimitives);
-  log::Info("  Total vertices: {}", totalVertices);
-  log::Info("  Total indices: {}", totalIndices);
-  log::Info("  Vertex buffer size: {:.2f} KB",
-            (totalVertices * sizeof(Vertex)) / 1024.0f);
-  log::Info("  Index buffer size: {:.2f} KB",
-            (totalIndices * sizeof(uint32_t)) / 1024.0f);
+  hm::log::Info("=== GLTF Load Summary ===");
+  hm::log::Info("  File: {}", filePath.filename().string());
+  hm::log::Info("  Meshes: {}", meshes.size());
+  hm::log::Info("  Primitives: {}", totalPrimitives);
+  hm::log::Info("  Total vertices: {}", totalVertices);
+  hm::log::Info("  Total indices: {}", totalIndices);
+  hm::log::Info("  Vertex buffer size: {:.2f} KB",
+                (totalVertices * sizeof(Vertex)) / 1024.0f);
+  hm::log::Info("  Index buffer size: {:.2f} KB",
+                (totalIndices * sizeof(uint32_t)) / 1024.0f);
 
   return meshes;
 }
@@ -438,7 +446,7 @@ void MeshNode::Draw(const glm::mat4& topMatrix, DrawContext& ctx)
 std::optional<std::shared_ptr<hm::LoadedGLTF>> hm::loadGltf(
     VkDevice _device, const std::filesystem::path& filePath)
 {
-  log::Info("Loading GLTF: {}", filePath.string());
+  hm::log::Info("Loading GLTF: {}", filePath.string());
 
   Model model;
   TinyGLTF loader;
@@ -456,7 +464,7 @@ std::optional<std::shared_ptr<hm::LoadedGLTF>> hm::loadGltf(
   }
   if (!warn.empty())
   {
-    log::Info("{}", warn.c_str());
+    hm::log::Info("{}", warn.c_str());
   }
 
   if (!err.empty())

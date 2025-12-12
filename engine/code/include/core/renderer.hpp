@@ -9,6 +9,7 @@ class Renderer : public ecs::System
  public:
   ~Renderer() override;
   explicit Renderer(const std::string& name);
+  void load_test_model();
   void Update(f32) override;
 
   void Render() override;

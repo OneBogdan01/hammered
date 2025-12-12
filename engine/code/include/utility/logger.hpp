@@ -1,4 +1,5 @@
 #pragma once
+#include "core/thread_pool.hpp"
 #include "external/tracy_impl.hpp"
 
 #include <print>
@@ -33,34 +34,28 @@ struct BaseSink
 {
   virtual ~BaseSink() = default;
   virtual void Sink(const LogMessage& msg) = 0;
+  virtual void Flush() = 0;
 };
 struct ConsoleSink : BaseSink
 {
   void Sink(const LogMessage& msg) override;
+  void Flush() override;
 };
 struct FileSink : BaseSink
 {
   explicit FileSink(const std::string& fileName) : output_file(fileName) {}
   void Sink(const LogMessage& msg) override;
+  void Flush() override;
   std::ofstream output_file;
 };
 struct Logger
 {
-  void Log(Level level, std::string_view msg)
-  {
-    if (level < m_level)
-      return;
-
-    std::lock_guard lock(m_mutex);
-    for (const auto& sink : m_sinks)
-    {
-      sink->Sink({level, m_name, msg});
-    }
-  }
+  void Log(Level level, std::string_view msg);
+  void Flush();
   template<typename... T>
   void Info(std::format_string<T...> fs, T&&... args)
   {
-    HM_ZONE_SCOPED_N("Log::Info");
+    HM_ZONE_SCOPED_N("  hm::log::Info");
     Log(Level::Info, std::format(fs, std::forward<T>(args)...));
   }
 
@@ -119,6 +114,10 @@ template<typename... T>
 void Debug(std::format_string<T...> fs, T&&... args)
 {
   GetGlobalLogger().Debug(fs, std::forward<T>(args)...);
+}
+inline void Flush()
+{
+  GetGlobalLogger().Flush();
 }
 
 } // namespace hm::log

@@ -6,7 +6,6 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
-// Libs
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -15,6 +14,8 @@
 #include <SDL3/SDL.h>
 #include <tiny_gltf.h>
 #include <stb_image.h>
+
+#include "utility/macros.hpp"
 
 using i8 = int8_t;
 using i16 = int16_t;

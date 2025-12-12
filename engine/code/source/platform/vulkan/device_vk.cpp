@@ -76,13 +76,13 @@ VkBool32 VulkanCallback(
 
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-      log::Info("{}  {}", mt, pCallbackData->pMessage);
+        hm::log::Info("{}  {}", mt, pCallbackData->pMessage);
       break;
 
     default:
-      log::Info("Unknown Severity");
+        hm::log::Info("Unknown Severity");
 
-      log::Info("{}  {}", mt, pCallbackData->pMessage);
+        hm::log::Info("{}  {}", mt, pCallbackData->pMessage);
       break;
   }
 
@@ -347,12 +347,12 @@ void internal::InitVulkan(SDL_Window* window, bool debug)
 
   if (vkbDevice && vkbDevice.physical_device)
   {
-    log::Info("GPU used: {}", vkbDevice.physical_device.name);
+      hm::log::Info("GPU used: {}", vkbDevice.physical_device.name);
   }
 
   if (_debug_messenger)
   {
-    log::Info("Vulkan debug output enabled.");
+      hm::log::Info("Vulkan debug output enabled.");
   }
   // Get the VkDevice handle used in the rest of a vulkan application
   _device = vkbDevice.device;

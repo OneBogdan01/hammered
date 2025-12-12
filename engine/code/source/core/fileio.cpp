@@ -18,7 +18,7 @@ void SaveGraphicsAPIToConfig(const std::string& api)
   out << "graphics_api=" << api << "\n";
   out.close();
 
-  log::Info("Saved graphics API to config: {}", api);
+    hm::log::Info("Saved graphics API to config: {}", api);
 }
 void RestartApplication()
 {
