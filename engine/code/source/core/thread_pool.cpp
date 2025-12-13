@@ -30,6 +30,7 @@ void ThreadPool::ThreadLoop()
     std::function<void()> job;
     {
       std::unique_lock lock(queue_mutex);
+      // kernel call to wait until notify
       mutex_condition.wait(lock,
                            [this]
                            {
@@ -52,16 +53,16 @@ void ThreadPool::QueueJob(const std::function<void()>& job)
   {
     std::scoped_lock lock(queue_mutex);
     jobs.push(job);
+    mutex_condition.notify_one();
   }
-  mutex_condition.notify_one();
 }
 void ThreadPool::Shutdown()
 {
   {
     std::scoped_lock lock(queue_mutex);
     should_terminate = true;
+    mutex_condition.notify_all();
   }
-  mutex_condition.notify_all();
   for (std::thread& active_thread : m_threads)
   {
     active_thread.join();
