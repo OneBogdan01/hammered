@@ -137,6 +137,7 @@ VkSamplerMipmapMode extract_mipmap_mode(int32_t filter)
 std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
     const std::filesystem::path& filePath)
 {
+  log::Flush();
   auto& pool = Engine::Instance().GetThreadPool();
   hm::log::Info("=== Loading GLTF: {} ===", filePath.string());
 
@@ -233,10 +234,11 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
             indices.push_back(static_cast<uint32_t>(data[i]) + initialVtx);
             if (i % 100 == 0)
             {
+              auto ts = log::clock::now();
               pool.QueueJob(
-                  [i, idx = indices.back()]()
+                  [i, idx = indices.back(), ts]()
                   {
-                    log::Debug("    Index[{}]: {}", i, idx);
+                    log::Debug(ts, "    Index[{}]: {}", i, idx);
                   });
             }
           }
@@ -258,6 +260,7 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
         meshIndexCount += indexCount;
         HM_ZONE_VALUE(static_cast<int64_t>(indexCount));
       }
+      // Wait for the pool to finish
       while (pool.Busy())
       {
         std::this_thread::yield();

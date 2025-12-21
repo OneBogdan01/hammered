@@ -34,8 +34,8 @@ void Engine::Init()
       m_pEntityComponentSystem->CreateSystem<Camera>("Camera Editor");
   m_pInput->AddInputHandler(camera);
 
-  GetGlobalLogger().m_sinks.emplace_back(std::make_unique<FileSink>("log.txt"));
-  GetGlobalLogger().m_sinks.emplace_back(std::make_unique<ConsoleSink>());
+  GetGlobalLogger().sinks.emplace_back(std::make_unique<FileSink>("log.txt"));
+  GetGlobalLogger().sinks.emplace_back(std::make_unique<ConsoleSink>());
 }
 
 SDL_AppResult Engine::Run()

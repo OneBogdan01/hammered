@@ -22,12 +22,18 @@ constexpr const char* red = "\033[31m";
 constexpr const char* yellow = "\033[33m";
 constexpr const char* purple = "\033[37m";
 } // namespace color
-
+using clock = std::chrono::steady_clock;
+using time_point = clock::time_point;
 struct LogMessage
 {
   Level level;
-  std::string_view loggerName;
-  std::string_view payLoad;
+  std::string loggerName;
+  std::string payLoad;
+  time_point timestamp;
+  bool operator<(const LogMessage& other) const
+  {
+    return timestamp < other.timestamp;
+  }
 };
 struct BaseSink
 {
@@ -50,7 +56,7 @@ struct FileSink : BaseSink
 struct Logger
 {
   void Log(Level level, std::string_view msg);
-
+  void Log(Level level, std::string_view msg, time_point ts);
   void Flush();
   template<typename... T>
   void Info(std::format_string<T...> fs, T&&... args)
@@ -79,7 +85,14 @@ struct Logger
     HM_ZONE_SCOPED_N("Log::Debug");
     Log(Level::Debug, std::format(fs, std::forward<T>(args)...));
   }
-  std::vector<std::shared_ptr<BaseSink>> m_sinks;
+  template<typename... T>
+  void Debug(time_point ts, std::format_string<T...> fs, T&&... args)
+  {
+    HM_ZONE_SCOPED_N("Log::Debug");
+    Log(Level::Debug, std::format(fs, std::forward<T>(args)...), ts);
+  }
+  std::vector<std::shared_ptr<BaseSink>> sinks;
+  std::vector<LogMessage> buffer;
 
  private:
   std::string m_name {"Global"};
@@ -115,6 +128,12 @@ void Debug(std::format_string<T...> fs, T&&... args)
 {
   GetGlobalLogger().Debug(fs, std::forward<T>(args)...);
 }
+template<typename... T>
+void Debug(time_point ts, std::format_string<T...> fs, T&&... args)
+{
+  GetGlobalLogger().Debug(ts, fs, std::forward<T>(args)...);
+}
+
 inline void Flush()
 {
   GetGlobalLogger().Flush();

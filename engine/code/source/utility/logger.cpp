@@ -21,17 +21,36 @@ void hm::log::Logger::Log(Level level, std::string_view msg)
 {
   if (level < m_level)
     return;
-
+  auto now = clock::now();
   std::scoped_lock lock(m_mutex);
-  for (const auto& sink : m_sinks)
-  {
-    sink->Sink({level, m_name, msg});
-  }
+  buffer.emplace_back(LogMessage {.level = level,
+                                  .loggerName = m_name,
+                                  .payLoad = std::string(msg),
+                                  .timestamp = now});
+}
+void hm::log::Logger::Log(Level level, std::string_view msg, time_point ts)
+{
+  if (level < m_level)
+    return;
+  std::scoped_lock lock(m_mutex);
+  buffer.emplace_back(LogMessage {.level = level,
+                                  .loggerName = m_name,
+                                  .payLoad = std::string(msg),
+                                  .timestamp = ts});
 }
 void hm::log::Logger::Flush()
 {
-  std::lock_guard lock(m_mutex);
-  for (auto& sink : m_sinks)
+  std::scoped_lock lock(m_mutex);
+  std::sort(buffer.begin(), buffer.end());
+  for (const auto& msg : buffer)
+  {
+    for (auto& sink : sinks)
+    {
+      sink->Sink(msg);
+    }
+  }
+  buffer.clear();
+  for (const auto& sink : sinks)
   {
     sink->Flush();
   }
