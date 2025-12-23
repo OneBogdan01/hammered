@@ -41,6 +41,7 @@ void hm::log::Logger::Log(Level level, std::string_view msg, time_point ts)
 void hm::log::Logger::Flush()
 {
   std::scoped_lock lock(m_mutex);
+  // can be sorted by time
   std::sort(buffer.begin(), buffer.end());
   for (const auto& msg : buffer)
   {
