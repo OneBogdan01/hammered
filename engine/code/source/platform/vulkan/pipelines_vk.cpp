@@ -3,7 +3,7 @@
 #include "glslang_c_interface.h"
 #include "volk.h"
 #include "glslang/Public/resource_limits_c.h"
-#include "utility/logger.hpp"
+#include "core/logger.hpp"
 
 using namespace vkutil;
 void PrintShaderSource(const char* text)

@@ -3,7 +3,7 @@
 #include "engine.hpp"
 #include "core/ecs.hpp"
 #include "core/renderer.hpp"
-#include "utility/logger.hpp"
+#include "core/logger.hpp"
 
 #include <windows.h>
 

@@ -4,7 +4,7 @@
 
 #include <SDL3/SDL_init.h>
 
-#include "utility/logger.hpp"
+#include "core/logger.hpp"
 
 #include <imgui.h>
 

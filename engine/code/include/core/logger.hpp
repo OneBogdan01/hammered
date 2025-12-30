@@ -1,7 +1,6 @@
 #pragma once
-#include "core/thread_pool.hpp"
+#include "thread/thread_pool.hpp"
 
-#include <print>
 #include <format>
 #include <mutex>
 

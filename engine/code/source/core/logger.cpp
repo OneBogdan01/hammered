@@ -1,5 +1,6 @@
-#include "utility/logger.hpp"
+#include "core/logger.hpp"
 
+#include <print>
 void hm::log::ConsoleSink::Sink(const LogMessage& msg)
 {
   std::println("{}", msg.payLoad);

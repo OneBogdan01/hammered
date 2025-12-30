@@ -5,7 +5,7 @@
 #include "camera.hpp"
 #include "core/device.hpp"
 #include "external/imgui_impl.hpp"
-#include "utility/logger.hpp"
+#include "core/logger.hpp"
 #include "utility/profiler_tracy.hpp"
 
 #include <chrono>

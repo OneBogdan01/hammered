@@ -1,6 +1,6 @@
-#include "core/thread_pool.hpp"
+#include "thread/thread_pool.hpp"
 
-#include "utility/logger.hpp"
+#include "core/logger.hpp"
 
 using namespace hm;
 ThreadPool::ThreadPool(u64 threadCount)
@@ -12,7 +12,7 @@ ThreadPool::ThreadPool(u64 threadCount)
     threadCount = hwThreads > 2 ? hwThreads - 2 : 1;
   }
   m_threads.reserve(threadCount);
-  hm::log::Info("Thread pool initialized with {}", threadCount);
+  log::Info("Thread pool initialized with {}", threadCount);
 
   for (size_t i = 0; i < threadCount; i++)
   {
