@@ -15,6 +15,7 @@ set(ENABLE_OPT OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)  
 set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE) 
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL" CACHE STRING "" FORCE)
 add_subdirectory(glslang)
 target_include_directories(glslang PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glslang/glslang/Include)
 target_include_directories(glslang PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/glslang)

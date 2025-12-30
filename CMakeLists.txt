@@ -9,6 +9,7 @@ set( HM_VERSION_MINOR 0 )
 set( HM_VERSION_PATCH 1 )
 
 set( HM_VERSION ${HM_VERSION_MAJOR}.${HM_VERSION_MINOR}.${HM_VERSION_PATCH})
+message(STATUS "Hammered Engine Version: ${HM_VERSION}")
 
 project(hammered_engine VERSION ${HM_VERSION})
 ## Keep it tidy

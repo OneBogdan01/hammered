@@ -6,6 +6,8 @@
 #include "SDL3/SDL_assert.h"
 
 #include "core/logger.hpp"
+#include "core/logger/sorted_logger.hpp"
+
 #include <stb_image.h>
 #include <volk.h>
 #include "platform/vulkan/device_vk.hpp"
@@ -137,7 +139,8 @@ VkSamplerMipmapMode extract_mipmap_mode(int32_t filter)
 std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
     const std::filesystem::path& filePath)
 {
-  log::Flush();
+  log::SortedLoggerMT indexLogger;
+  indexLogger.sinks = log::GetGlobalLogger()->sinks;
   auto& pool = Engine::Instance().GetThreadPool();
   hm::log::Info("=== Loading GLTF: {} ===", filePath.string());
 
@@ -236,9 +239,9 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
             {
               auto ts = log::clock::now();
               pool.QueueJob(
-                  [i, idx = indices.back(), ts]()
+                  [&indexLogger, i, idx = indices.back(), ts]()
                   {
-                    log::Debug(ts, "    Index[{}]: {}", i, idx);
+                    indexLogger.Debug(ts, "    Index[{}]: {}", i, idx);
                   });
             }
           }
@@ -260,12 +263,13 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
         meshIndexCount += indexCount;
         HM_ZONE_VALUE(static_cast<int64_t>(indexCount));
       }
-      // Wait for the pool to finish
+
       while (pool.Busy())
       {
         std::this_thread::yield();
       }
-      log::Flush();
+      indexLogger.Flush(); // Outputs sorted by timestamp
+
       size_t vertexCount = 0;
       {
         HM_ZONE_SCOPED_N("Parse Positions");
