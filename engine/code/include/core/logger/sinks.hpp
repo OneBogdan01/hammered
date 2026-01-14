@@ -31,6 +31,8 @@ struct LogMessage
   std::string payload;
   time_point timestamp;
   std::thread::id threadId;
+
+  LogMessage() = default;
   explicit LogMessage(const LogMsgView& view)
       : level(view.level),
         loggerName(view.loggerName),

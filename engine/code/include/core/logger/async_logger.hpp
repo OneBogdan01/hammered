@@ -1,12 +1,23 @@
 #pragma once
 #include "base_logger.hpp"
-namespace hg::log
+#include "log_thread_pool.hpp"
+#include "mutex.hpp"
+namespace hm::log
 {
-template<typename Mutex>
-struct AsyncLogger : hm::log::BaseLogger<Mutex>
+enum class AsyncOverflowPolicy : u8
 {
-  using hm::log::BaseLogger<Mutex>::Log;
+  BLOCK,
+  OVERRUN_OLDEST,
+  DISCARD_NEW
+};
+class AsyncLogger : hm::log::BaseLogger<hm::log::NullMutex>
+{
+ public:
+  using BaseLogger<hm::log::NullMutex>::Log;
   void Log(hm::log::Level level, std::string_view msg) override {};
   void Flush() override {};
+
+ private:
+  hm::log::LogThreadPool m_threadPool;
 };
-} // namespace hg::log
+} // namespace hm::log
