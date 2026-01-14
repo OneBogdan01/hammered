@@ -4,20 +4,42 @@
 #include "mutex.hpp"
 namespace hm::log
 {
-enum class AsyncOverflowPolicy : u8
-{
-  BLOCK,
-  OVERRUN_OLDEST,
-  DISCARD_NEW
-};
-class AsyncLogger : hm::log::BaseLogger<hm::log::NullMutex>
+class LogThreadPool;
+
+class AsyncLogger : public std::enable_shared_from_this<AsyncLogger>,
+                    public BaseLogger<NullMutex>
 {
  public:
-  using BaseLogger<hm::log::NullMutex>::Log;
-  void Log(hm::log::Level level, std::string_view msg) override {};
-  void Flush() override {};
+  using BaseLogger::Log;
+  template<typename It>
+  AsyncLogger(std::string name, It begin, It end,
+              std::weak_ptr<LogThreadPool> pool,
+              AsyncOverflowPolicy policy = AsyncOverflowPolicy::BLOCK)
+      : m_threadPool(std::move(pool)), m_overflowPolicy(policy)
+  {
+    m_name = std::move(name);
+    sinks.assign(begin, end);
+  }
+
+  AsyncLogger(std::string name,
+              std::initializer_list<std::shared_ptr<BaseSink>> sinksList,
+              std::weak_ptr<LogThreadPool> pool,
+              AsyncOverflowPolicy policy = AsyncOverflowPolicy::BLOCK);
+
+  AsyncLogger(std::string name, std::shared_ptr<BaseSink> sink,
+              std::weak_ptr<LogThreadPool> pool,
+              AsyncOverflowPolicy policy = AsyncOverflowPolicy::BLOCK);
+
+  void Log(Level level, std::string_view msg) override;
+  void Flush() override;
+
+  void BackendSink(const LogMessage& msg);
+  void BackendFlush();
+  std::shared_ptr<AsyncLogger> Clone(std::string newName);
 
  private:
-  hm::log::LogThreadPool m_threadPool;
+  friend class LogThreadPool;
+  std::weak_ptr<LogThreadPool> m_threadPool;
+  AsyncOverflowPolicy m_overflowPolicy {AsyncOverflowPolicy::BLOCK};
 };
 } // namespace hm::log

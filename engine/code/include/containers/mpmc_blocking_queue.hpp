@@ -23,9 +23,9 @@ class MPMCBlockingQueue
       m_popCV.wait(lock,
                    [this]
                    {
-                     return !this->m_queue.full();
+                     return !this->m_queue.Full();
                    });
-      m_queue.push_back(std::move(item));
+      m_queue.PushBack(std::move(item));
     }
     m_pushCV.notify_one();
   }
@@ -35,19 +35,19 @@ class MPMCBlockingQueue
   {
     {
       std::unique_lock lock(m_queueMutex);
-      m_queue.push_back(std::move(item));
+      m_queue.PushBack(std::move(item));
     }
     m_pushCV.notify_one();
   }
 
-  void EnqueueRoom(T&& item)
+  void EnqueueIfSpace(T&& item)
   {
     bool pushed = false;
     {
       std::unique_lock lock(m_queueMutex);
-      if (!m_queue.full())
+      if (!m_queue.Full())
       {
-        m_queue.push_back(std::move(item));
+        m_queue.PushBack(std::move(item));
         pushed = true;
       }
     }
@@ -71,13 +71,13 @@ class MPMCBlockingQueue
       if (!m_pushCV.wait_for(lock, wait_duration,
                              [this]
                              {
-                               return !this->m_queue.empty();
+                               return !this->m_queue.Empty();
                              }))
       {
         return false;
       }
-      popped_item = std::move(m_queue.front());
-      m_queue.pop_front();
+      popped_item = std::move(m_queue.Front());
+      m_queue.Pop_front();
     }
     m_popCV.notify_one();
     return true;
@@ -91,10 +91,10 @@ class MPMCBlockingQueue
       m_pushCV.wait(lock,
                     [this]
                     {
-                      return !this->m_queue.empty();
+                      return !this->m_queue.Empty();
                     });
-      popped_item = std::move(m_queue.front());
-      m_queue.pop_front();
+      popped_item = std::move(m_queue.Front());
+      m_queue.PopFront();
     }
     m_popCV.notify_one();
   }
@@ -113,7 +113,7 @@ class MPMCBlockingQueue
   size_t Size()
   {
     std::scoped_lock lock(m_queueMutex);
-    return m_queue.size();
+    return m_queue.Size();
   }
 
   void ResetOverrunCount()

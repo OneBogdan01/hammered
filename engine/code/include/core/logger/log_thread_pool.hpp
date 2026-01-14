@@ -1,5 +1,4 @@
 #pragma once
-#include "async_logger.hpp"
 #include "sinks.hpp"
 #include "containers/mpmc_blocking_queue.hpp"
 
@@ -10,12 +9,20 @@ namespace hm::log
 {
 // from https://github.com/gabime/spdlog/blob/v1.x/include/spdlog/async_logger.h
 
+enum class AsyncOverflowPolicy : u8
+{
+  BLOCK,
+  OVERRUN_OLDEST,
+  DISCARD_NEW
+};
+
 enum class AsyncMessageType : u8
 {
   LOG,
   FLUSH,
   TERMINATE
 };
+class AsyncLogger;
 using AsyncPtr = std::shared_ptr<AsyncLogger>;
 
 struct AsyncMessage
@@ -59,11 +66,11 @@ class LogThreadPool
   void PostLog(AsyncPtr&& worker_ptr, LogMsgView& msg,
                AsyncOverflowPolicy overflow_policy);
   void PostFlush(AsyncPtr&& worker_ptr, AsyncOverflowPolicy overflow_policy);
-  size_t OverrunCounter();
+  u64 OverrunCounter();
   void ResetOverrunCounter();
-  size_t DiscardCounter();
+  u64 DiscardCounter();
   void ResetDiscardCounter();
-  size_t QueueSize();
+  u64 QueueSize();
 
  private:
   containers::MPMCBlockingQueue<AsyncMessage> m_queue;

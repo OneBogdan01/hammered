@@ -1,9 +1,10 @@
 #pragma once
+#include "mutex.hpp"
+
 #include <chrono>
 #include <string>
 #include <print>
 #include <mutex>
-
 namespace hm::log
 {
 enum class Level
