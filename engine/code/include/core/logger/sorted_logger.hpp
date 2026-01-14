@@ -14,13 +14,13 @@ struct SortedLogger : BaseLogger<Mutex>
   {
     if (level < this->m_level)
       return;
-    auto tid = std::this_thread::get_id();
+    LogMsgView view {.level = level,
+                     .loggerName = this->m_name,
+                     .payload = msg,
+                     .timestamp = ts,
+                     .threadId = std::this_thread::get_id()};
     std::scoped_lock lock(this->m_mutex);
-    this->buffer.emplace_back(LogMessage {.level = level,
-                                          .loggerName = this->m_name,
-                                          .payLoad = std::string(msg),
-                                          .timestamp = ts,
-                                          .threadId = tid});
+    this->buffer.emplace_back(view);
   }
   void Flush() override
   {

@@ -13,24 +13,23 @@ struct BaseLogger
   {
     if (level < m_level)
       return;
-    auto tid = std::this_thread::get_id();
-    auto now = clock::now();
-    LogMessage logMessage {.level = level,
-                           .loggerName = m_name,
-                           .payLoad = std::string(msg),
-                           .timestamp = now,
-                           .threadId = tid};
+    LogMsgView view {.level = level,
+                     .loggerName = m_name,
+                     .payload = msg,
+                     .timestamp = clock::now(),
+                     .threadId = std::this_thread::get_id()};
+
     std::scoped_lock lock(m_mutex);
-    for (auto& sink : sinks)
+    for (const auto& sink : sinks)
     {
-      sink->Sink(logMessage);
+      sink->Sink(view);
     }
   };
 
   virtual void Flush()
   {
     std::scoped_lock lock(m_mutex);
-    for (auto& sink : sinks)
+    for (const auto& sink : sinks)
     {
       sink->Flush();
     }
@@ -70,7 +69,6 @@ struct BaseLogger
     Log(Level::Debug, std::format(fs, std::forward<T>(args)...), ts);
   }
   std::vector<std::shared_ptr<BaseSink>> sinks;
-  std::vector<LogMessage> buffer;
 
  protected:
   std::string m_name {"Global"};
