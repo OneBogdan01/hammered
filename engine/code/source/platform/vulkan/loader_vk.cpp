@@ -139,11 +139,6 @@ VkSamplerMipmapMode extract_mipmap_mode(int32_t filter)
 std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
     const std::filesystem::path& filePath)
 {
-  log::SortedLoggerMT indexLogger;
-  indexLogger.sinks = log::GetGlobalLogger()->sinks;
-  auto& pool = Engine::Instance().GetThreadPool();
-  hm::log::Info("=== Loading GLTF: {} ===", filePath.string());
-
   Model model;
   TinyGLTF loader;
   std::string err;
@@ -237,12 +232,7 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
             indices.push_back(static_cast<uint32_t>(data[i]) + initialVtx);
             if (i % 100 == 0)
             {
-              auto ts = log::clock::now();
-              pool.QueueJob(
-                  [&indexLogger, i, idx = indices.back(), ts]()
-                  {
-                    indexLogger.Debug(ts, "    Index[{}]: {}", i, idx);
-                  });
+              log::Debug("    Index[{}]: {}", i, indices.back());
             }
           }
         };
@@ -263,12 +253,6 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
         meshIndexCount += indexCount;
         HM_ZONE_VALUE(static_cast<int64_t>(indexCount));
       }
-
-      while (pool.Busy())
-      {
-        std::this_thread::yield();
-      }
-      indexLogger.Flush(); // Outputs sorted by timestamp
 
       size_t vertexCount = 0;
       {
@@ -415,7 +399,7 @@ std::optional<std::vector<std::shared_ptr<hm::MeshAsset>>> hm::loadGltfMeshes(
   hm::log::Info("  Vertex buffer size: {:.2f} KB",
                 (totalVertices * sizeof(Vertex)) / 1024.0f);
   hm::log::Info("  Index buffer size: {:.2f} KB",
-                (totalIndices * sizeof(uint32_t)) / 1024.0f);
+                (totalIndices * sizeof(u32)) / 1024.0f);
 
   return meshes;
 }

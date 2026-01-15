@@ -1,8 +1,10 @@
 #pragma once
 
-#ifdef HM_EDITOR
 #include <tracy/Tracy.hpp>
 
+#ifndef HM_CALLSTACK_DEPTH
+#define HM_CALLSTACK_DEPTH 16
+#endif
 // Zone scoping
 #define HM_ZONE_SCOPED ZoneScoped
 #define HM_ZONE_SCOPED_N(name) ZoneScopedN(name)
@@ -35,37 +37,24 @@
 #define HM_LOCKABLE(type, var) TracyLockable(type, var)
 #define HM_LOCKABLE_N(type, var, name) TracyLockableN(type, var, name)
 
-#else
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4595)
 
-// Zone scoping
-#define HM_ZONE_SCOPED
-#define HM_ZONE_SCOPED_N(name)
-#define HM_ZONE_SCOPED_C(color)
-#define HM_ZONE_SCOPED_NC(name, color)
-#define HM_ZONE_TEXT(text, len)
-#define HM_ZONE_VALUE(value)
+#endif
 
-// Frame marks
-#define HM_FRAME_MARK
-#define HM_FRAME_MARK_N(name)
-#define HM_FRAME_MARK_START(name)
-#define HM_FRAME_MARK_END(name)
+inline void* operator new(std::size_t count)
+{
+  auto ptr = malloc(count);
+  TracyAllocS(ptr, count, HM_CALLSTACK_DEPTH);
+  return ptr;
+}
+inline void operator delete(void* ptr) noexcept
+{
+  TracyFreeS(ptr, HM_CALLSTACK_DEPTH);
+  free(ptr);
+}
 
-// Plotting
-#define HM_PLOT(name, val)
-#define HM_PLOT_CONFIG(name, type, step, fill, color)
-
-// Messages
-#define HM_MESSAGE(text, len)
-#define HM_MESSAGE_L(text)
-#define HM_MESSAGE_C(text, len, color)
-
-// Memory
-#define HM_ALLOC(ptr, size)
-#define HM_FREE(ptr)
-
-// Locks
-#define HM_LOCKABLE(type, var) type var
-#define HM_LOCKABLE_N(type, var, name) type var
-
+#ifdef _MSC_VER
+#pragma warning(pop)
 #endif

@@ -34,10 +34,7 @@ void Engine::Init()
       m_pEntityComponentSystem->CreateSystem<Camera>("Camera Editor");
   m_pInput->AddInputHandler(camera);
 
-  auto logger = std::make_shared<LoggerMt>();
-  logger->sinks.push_back(std::make_shared<FileSinkMt>("log.txt"));
-  logger->sinks.push_back(std::make_shared<ConsoleSinkMt>());
-  SetDefaultLogger(logger);
+  log::SetDefaultLogger(CreateFileLogger("log.txt", "Engine"));
 }
 
 SDL_AppResult Engine::Run()
@@ -85,7 +82,6 @@ SDL_AppResult Engine::Run()
 
 void Engine::Shutdown()
 {
-  log::Flush();
   Info("Engine is freeing resources");
   delete m_pEntityComponentSystem;
   delete m_pInput;
@@ -93,4 +89,5 @@ void Engine::Shutdown()
   delete m_pDevice;
   delete m_pThreadPool;
   Info("Engine is closed");
+  log::Shutdown();
 }
