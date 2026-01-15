@@ -58,7 +58,7 @@ class CircularQueue
   // Return const reference to item by index.
   const T& At(size_t i) const
   {
-    assert(i < size());
+    assert(i < Size());
     return m_buffer[(m_head + i) % m_maxItems];
   }
 
