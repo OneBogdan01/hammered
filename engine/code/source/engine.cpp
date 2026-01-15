@@ -34,13 +34,7 @@ void Engine::Init()
       m_pEntityComponentSystem->CreateSystem<Camera>("Camera Editor");
   m_pInput->AddInputHandler(camera);
 
-  log::InitThreadPool(8192 * 5, 1);
-  log::SetDefaultLogger(log::CreateAsyncFileLogger("log.txt", "Engine"));
-
-  auto logger = std::make_shared<LoggerMt>();
-  logger->sinks.push_back(std::make_shared<FileSinkMt>("log.txt"));
-  logger->sinks.push_back(std::make_shared<ConsoleSinkMt>());
-  SetDefaultLogger(logger);
+  log::SetDefaultLogger(CreateFileLogger("log.txt", "Engine"));
 }
 
 SDL_AppResult Engine::Run()

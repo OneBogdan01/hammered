@@ -62,18 +62,21 @@ struct ConsoleSink : BaseSink
 {
   void Sink(LogMsgView msg) override
   {
+    HM_ZONE_SCOPED_N("ConsoleSink::Sink");
     std::scoped_lock lock(m_mutex);
     std::println("{}", msg.payload);
   }
 
   void Flush() override
   {
+    HM_ZONE_SCOPED_N("ConsoleSink::Flush");
+
     std::scoped_lock lock(m_mutex);
     std::cout.flush();
   }
 
  private:
-  Mutex m_mutex;
+  HM_LOCKABLE_N(Mutex, m_mutex, "ConsoleSink");
 };
 
 template<typename Mutex>
@@ -83,19 +86,21 @@ struct FileSink : BaseSink
 
   void Sink(LogMsgView msg) override
   {
+    HM_ZONE_SCOPED_N("FileSink::Sink");
     std::scoped_lock lock(m_mutex);
     m_file << std::format("{}\n", msg.payload);
   }
 
   void Flush() override
   {
+    HM_ZONE_SCOPED_N("FileSink::Flush");
     std::scoped_lock lock(m_mutex);
     m_file.flush();
   }
 
  private:
   std::ofstream m_file;
-  Mutex m_mutex;
+  HM_LOCKABLE_N(Mutex, m_mutex, "ConsoleSink");
 };
 using ConsoleSinkMt = ConsoleSink<std::mutex>;
 using ConsoleSinkSt = ConsoleSink<NullMutex>;

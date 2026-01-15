@@ -105,12 +105,14 @@ void hm::log::LogThreadPool::PostAsyncMsg(AsyncMessage&& new_msg,
 }
 void hm::log::LogThreadPool::WorkerLoop()
 {
+  HM_ZONE_SCOPED_N("LogWorkerLoop");
   while (ProcessNextMsg())
   {
   }
 }
 bool hm::log::LogThreadPool::ProcessNextMsg()
 {
+  HM_ZONE_SCOPED_N("ProcessLogMsg");
   AsyncMessage incoming_msg;
   m_queue.Dequeue(incoming_msg);
 

@@ -1,7 +1,6 @@
 Triangle fragment shader succesfully loaded
 Triangle vertex shader succesfully loaded
-=== Loading GLTF: assets/models/basicmesh.glb ===
-  Binary load: 938 us
+  Binary load: 675 us
   Found 3 mesh(es), 1 buffer(s), 12 accessor(s)
   Processing mesh [0]: 'Cube'
     Index[0]: 1
@@ -9,8 +8,8 @@ Triangle vertex shader succesfully loaded
     Parsed 24 normals
     Parsed 24 UVs
     Primitive [0]: 24 vertices, 36 indices
-    GPU upload: 280 us
-    Mesh 'Cube': 1 primitives, 24 verts, 36 indices (804 us)
+    GPU upload: 714 us
+    Mesh 'Cube': 1 primitives, 24 verts, 36 indices (1170 us)
   Processing mesh [1]: 'Sphere'
     Index[0]: 23
     Index[100]: 89
@@ -45,8 +44,8 @@ Triangle vertex shader succesfully loaded
     Parsed 1984 normals
     Parsed 1984 UVs
     Primitive [0]: 1984 vertices, 2880 indices
-    GPU upload: 556 us
-    Mesh 'Sphere': 1 primitives, 1984 verts, 2880 indices (2296 us)
+    GPU upload: 487 us
+    Mesh 'Sphere': 1 primitives, 1984 verts, 2880 indices (1953 us)
   Processing mesh [2]: 'Suzanne'
     Index[0]: 152
     Index[100]: 89
@@ -82,8 +81,8 @@ Triangle vertex shader succesfully loaded
     Parsed 1966 normals
     Parsed 1966 UVs
     Primitive [0]: 1966 vertices, 2904 indices
-    GPU upload: 245 us
-    Mesh 'Suzanne': 1 primitives, 1966 verts, 2904 indices (1306 us)
+    GPU upload: 289 us
+    Mesh 'Suzanne': 1 primitives, 1966 verts, 2904 indices (2066 us)
 === GLTF Load Summary ===
   File: basicmesh.glb
   Meshes: 3
@@ -94,8 +93,7 @@ Triangle vertex shader succesfully loaded
   Index buffer size: 22.73 KB
 Loading GLTF: assets/models/structure.glb
 Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1 -p 8086 -f -s 5
-=== Loading GLTF: assets/models/a_beautiful_game.glb ===
-  Binary load: 2812644 us
+  Binary load: 3126098 us
   Found 15 mesh(es), 1 buffer(s), 75 accessor(s)
   Processing mesh [0]: 'King_Shared'
     Index[0]: 0
@@ -1317,8 +1315,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 29162 normals
     Parsed 29162 UVs
     Primitive [0]: 29162 vertices, 121440 indices
-    GPU upload: 2822 us
-    Mesh 'King_Shared': 1 primitives, 29162 verts, 121440 indices (46311 us)
+    GPU upload: 3835 us
+    Mesh 'King_Shared': 1 primitives, 29162 verts, 121440 indices (65089 us)
   Processing mesh [1]: 'King_Shared'
     Index[0]: 0
     Index[100]: 36
@@ -2539,8 +2537,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 29162 normals
     Parsed 29162 UVs
     Primitive [0]: 29162 vertices, 121440 indices
-    GPU upload: 3791 us
-    Mesh 'King_Shared': 1 primitives, 29162 verts, 121440 indices (47078 us)
+    GPU upload: 4000 us
+    Mesh 'King_Shared': 1 primitives, 29162 verts, 121440 indices (64274 us)
   Processing mesh [2]: 'Queen_Shared'
     Index[0]: 0
     Index[100]: 24
@@ -3578,8 +3576,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 20990 normals
     Parsed 20990 UVs
     Primitive [0]: 20990 vertices, 103104 indices
-    GPU upload: 3252 us
-    Mesh 'Queen_Shared': 1 primitives, 20990 verts, 103104 indices (39081 us)
+    GPU upload: 3451 us
+    Mesh 'Queen_Shared': 1 primitives, 20990 verts, 103104 indices (50876 us)
   Processing mesh [3]: 'Queen_Shared'
     Index[0]: 0
     Index[100]: 24
@@ -4617,8 +4615,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 20990 normals
     Parsed 20990 UVs
     Primitive [0]: 20990 vertices, 103104 indices
-    GPU upload: 3592 us
-    Mesh 'Queen_Shared': 1 primitives, 20990 verts, 103104 indices (41299 us)
+    GPU upload: 3243 us
+    Mesh 'Queen_Shared': 1 primitives, 20990 verts, 103104 indices (53807 us)
   Processing mesh [4]: 'Chessboard'
     Index[0]: 0
     Index[100]: 40
@@ -7397,8 +7395,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 115200 normals
     Parsed 115200 UVs
     Primitive [0]: 115200 vertices, 277248 indices
-    GPU upload: 4331 us
-    Mesh 'Chessboard': 1 primitives, 115200 verts, 277248 indices (107157 us)
+    GPU upload: 7507 us
+    Mesh 'Chessboard': 1 primitives, 115200 verts, 277248 indices (139497 us)
   Processing mesh [5]: 'Pawn_Top_Shared'
     Index[0]: 0
     Index[100]: 25
@@ -7471,8 +7469,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 1172 normals
     Parsed 1172 UVs
     Primitive [0]: 1172 vertices, 6624 indices
-    GPU upload: 2209 us
-    Mesh 'Pawn_Top_Shared': 1 primitives, 1172 verts, 6624 indices (3991 us)
+    GPU upload: 2114 us
+    Mesh 'Pawn_Top_Shared': 1 primitives, 1172 verts, 6624 indices (5781 us)
   Processing mesh [6]: 'Pawn_Body_Shared'
     Index[0]: 0
     Index[100]: 27
@@ -8895,8 +8893,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 25957 normals
     Parsed 25957 UVs
     Primitive [0]: 25957 vertices, 141696 indices
-    GPU upload: 2707 us
-    Mesh 'Pawn_Body_Shared': 1 primitives, 25957 verts, 141696 indices (48439 us)
+    GPU upload: 3712 us
+    Mesh 'Pawn_Body_Shared': 1 primitives, 25957 verts, 141696 indices (72545 us)
   Processing mesh [7]: 'Pawn_Top_Shared'
     Index[0]: 0
     Index[100]: 25
@@ -8969,8 +8967,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 1172 normals
     Parsed 1172 UVs
     Primitive [0]: 1172 vertices, 6624 indices
-    GPU upload: 1830 us
-    Mesh 'Pawn_Top_Shared': 1 primitives, 1172 verts, 6624 indices (5574 us)
+    GPU upload: 1794 us
+    Mesh 'Pawn_Top_Shared': 1 primitives, 1172 verts, 6624 indices (5786 us)
   Processing mesh [8]: 'Pawn_Body_Shared'
     Index[0]: 0
     Index[100]: 27
@@ -10393,8 +10391,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 25957 normals
     Parsed 25957 UVs
     Primitive [0]: 25957 vertices, 141696 indices
-    GPU upload: 3431 us
-    Mesh 'Pawn_Body_Shared': 1 primitives, 25957 verts, 141696 indices (44060 us)
+    GPU upload: 4716 us
+    Mesh 'Pawn_Body_Shared': 1 primitives, 25957 verts, 141696 indices (80196 us)
   Processing mesh [9]: 'Castle_Shared'
     Index[0]: 0
     Index[100]: 24
@@ -11316,8 +11314,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 24838 normals
     Parsed 24838 UVs
     Primitive [0]: 24838 vertices, 91584 indices
-    GPU upload: 2711 us
-    Mesh 'Castle_Shared': 1 primitives, 24838 verts, 91584 indices (30336 us)
+    GPU upload: 3910 us
+    Mesh 'Castle_Shared': 1 primitives, 24838 verts, 91584 indices (44247 us)
   Processing mesh [10]: 'Castle_Shared'
     Index[0]: 0
     Index[100]: 24
@@ -12239,8 +12237,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 24838 normals
     Parsed 24838 UVs
     Primitive [0]: 24838 vertices, 91584 indices
-    GPU upload: 2849 us
-    Mesh 'Castle_Shared': 1 primitives, 24838 verts, 91584 indices (31835 us)
+    GPU upload: 3883 us
+    Mesh 'Castle_Shared': 1 primitives, 24838 verts, 91584 indices (47068 us)
   Processing mesh [11]: 'Knight_Shared'
     Index[0]: 0
     Index[100]: 30
@@ -12582,8 +12580,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 6435 normals
     Parsed 6435 UVs
     Primitive [0]: 6435 vertices, 33552 indices
-    GPU upload: 3547 us
-    Mesh 'Knight_Shared': 1 primitives, 6435 verts, 33552 indices (16088 us)
+    GPU upload: 2908 us
+    Mesh 'Knight_Shared': 1 primitives, 6435 verts, 33552 indices (20074 us)
   Processing mesh [12]: 'Knight_Shared'
     Index[0]: 0
     Index[100]: 30
@@ -12925,8 +12923,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 6435 normals
     Parsed 6435 UVs
     Primitive [0]: 6435 vertices, 33552 indices
-    GPU upload: 2869 us
-    Mesh 'Knight_Shared': 1 primitives, 6435 verts, 33552 indices (12572 us)
+    GPU upload: 3056 us
+    Mesh 'Knight_Shared': 1 primitives, 6435 verts, 33552 indices (19072 us)
   Processing mesh [13]: 'Bishop_Shared'
     Index[0]: 0
     Index[100]: 28
@@ -15176,8 +15174,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 42360 normals
     Parsed 42360 UVs
     Primitive [0]: 42360 vertices, 224304 indices
-    GPU upload: 3721 us
-    Mesh 'Bishop_Shared': 1 primitives, 42360 verts, 224304 indices (76507 us)
+    GPU upload: 5138 us
+    Mesh 'Bishop_Shared': 1 primitives, 42360 verts, 224304 indices (106876 us)
   Processing mesh [14]: 'Bishop_Shared'
     Index[0]: 0
     Index[100]: 28
@@ -17427,8 +17425,8 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
     Parsed 42360 normals
     Parsed 42360 UVs
     Primitive [0]: 42360 vertices, 224304 indices
-    GPU upload: 4238 us
-    Mesh 'Bishop_Shared': 1 primitives, 42360 verts, 224304 indices (80450 us)
+    GPU upload: 6573 us
+    Mesh 'Bishop_Shared': 1 primitives, 42360 verts, 224304 indices (117145 us)
 === GLTF Load Summary ===
   File: a_beautiful_game.glb
   Meshes: 15
@@ -17437,5 +17435,3 @@ Launched Tracy capture: D:\tracy\tracy-capture.exe -o profile.tracy -a 127.0.0.1
   Total indices: 1721856
   Vertex buffer size: 19548.19 KB
   Index buffer size: 6726.00 KB
-Engine is freeing resources
-Engine is closed

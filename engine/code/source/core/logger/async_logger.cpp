@@ -18,6 +18,7 @@ AsyncLogger::AsyncLogger(std::string name, std::shared_ptr<BaseSink> sink,
 }
 void AsyncLogger::Log(Level level, std::string_view msg)
 {
+  HM_ZONE_SCOPED_N("AsyncLogger::Log");
   if (level < m_level)
     return;
 

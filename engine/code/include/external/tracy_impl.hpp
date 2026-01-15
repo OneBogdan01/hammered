@@ -1,6 +1,5 @@
 #pragma once
 
-#ifdef HM_EDITOR
 #include <tracy/Tracy.hpp>
 
 #ifndef HM_CALLSTACK_DEPTH
@@ -58,38 +57,4 @@ inline void operator delete(void* ptr) noexcept
 
 #ifdef _MSC_VER
 #pragma warning(pop)
-#endif
-#else
-
-// Zone scoping
-#define HM_ZONE_SCOPED
-#define HM_ZONE_SCOPED_N(name)
-#define HM_ZONE_SCOPED_C(color)
-#define HM_ZONE_SCOPED_NC(name, color)
-#define HM_ZONE_TEXT(text, len)
-#define HM_ZONE_VALUE(value)
-
-// Frame marks
-#define HM_FRAME_MARK
-#define HM_FRAME_MARK_N(name)
-#define HM_FRAME_MARK_START(name)
-#define HM_FRAME_MARK_END(name)
-
-// Plotting
-#define HM_PLOT(name, val)
-#define HM_PLOT_CONFIG(name, type, step, fill, color)
-
-// Messages
-#define HM_MESSAGE(text, len)
-#define HM_MESSAGE_L(text)
-#define HM_MESSAGE_C(text, len, color)
-
-// Memory
-#define HM_ALLOC(ptr, size)
-#define HM_FREE(ptr)
-
-// Locks
-#define HM_LOCKABLE(type, var) type var
-#define HM_LOCKABLE_N(type, var, name) type var
-
 #endif

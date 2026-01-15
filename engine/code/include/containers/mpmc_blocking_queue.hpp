@@ -18,6 +18,7 @@ class MPMCBlockingQueue
   // try to enqueue and block if no room left
   void Enqueue(T&& item)
   {
+    HM_ZONE_SCOPED_N("LogQueue::Enqueue");
     {
       std::unique_lock lock(m_queueMutex);
       m_popCV.wait(lock,
@@ -86,6 +87,7 @@ class MPMCBlockingQueue
   // blocking dequeue without a timeout.
   void Dequeue(T& popped_item)
   {
+    HM_ZONE_SCOPED_N("LogQueue::Dequeue");
     {
       std::unique_lock lock(m_queueMutex);
       m_pushCV.wait(lock,
@@ -132,6 +134,6 @@ class MPMCBlockingQueue
   std::condition_variable m_pushCV;
   std::condition_variable m_popCV;
   CircularQueue<T> m_queue;
-  std::atomic<size_t> m_discardCounter {0};
+  std::atomic<u64> m_discardCounter {0};
 };
 } // namespace hm::containers
