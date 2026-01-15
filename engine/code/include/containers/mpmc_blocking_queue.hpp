@@ -77,7 +77,7 @@ class MPMCBlockingQueue
         return false;
       }
       popped_item = std::move(m_queue.Front());
-      m_queue.Pop_front();
+      m_queue.PopFront();
     }
     m_popCV.notify_one();
     return true;

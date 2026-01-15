@@ -3,6 +3,9 @@
 #ifdef HM_EDITOR
 #include <tracy/Tracy.hpp>
 
+#ifndef HM_CALLSTACK_DEPTH
+#define HM_CALLSTACK_DEPTH 16
+#endif
 // Zone scoping
 #define HM_ZONE_SCOPED ZoneScoped
 #define HM_ZONE_SCOPED_N(name) ZoneScopedN(name)
@@ -35,6 +38,27 @@
 #define HM_LOCKABLE(type, var) TracyLockable(type, var)
 #define HM_LOCKABLE_N(type, var, name) TracyLockableN(type, var, name)
 
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4595)
+
+#endif
+
+inline void* operator new(std::size_t count)
+{
+  auto ptr = malloc(count);
+  TracyAllocS(ptr, count, HM_CALLSTACK_DEPTH);
+  return ptr;
+}
+inline void operator delete(void* ptr) noexcept
+{
+  TracyFreeS(ptr, HM_CALLSTACK_DEPTH);
+  free(ptr);
+}
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 #else
 
 // Zone scoping

@@ -8,7 +8,15 @@
 
 namespace hm::log
 {
+#define HM_LOGGER_TYPE 2
 
+#if HM_LOGGER_TYPE == 0
+using DefaultLogger = LoggerSt;
+#elif HM_LOGGER_TYPE == 1
+using DefaultLogger = LoggerMt;
+#else
+using DefaultLogger = AsyncLogger;
+#endif
 inline std::shared_ptr<LogThreadPool>& GetGlobalThreadPool()
 {
   static std::shared_ptr<LogThreadPool> instance;
@@ -59,7 +67,7 @@ inline std::shared_ptr<AsyncLogger> GetDefaultLogger()
 // Factory - async logger with file + console
 inline std::shared_ptr<AsyncLogger> CreateAsyncFileLogger(
     const std::string& path, const std::string& name = "Global",
-    AsyncOverflowPolicy policy = AsyncOverflowPolicy::OVERRUN_OLDEST)
+    AsyncOverflowPolicy policy = AsyncOverflowPolicy::BLOCK)
 {
   auto& pool = GetGlobalThreadPool();
   assert(pool);
