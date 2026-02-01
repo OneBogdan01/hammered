@@ -19,8 +19,6 @@ Checks: >
   -misc-non-private-member-variables-in-classes,
   -misc-unused-parameters
 
-# RUST-LIKE SAFETY CHECKS - CRITICAL
-# These are like Rust's borrow checker - NEVER disable these
 WarningsAsErrors: >
   bugprone-use-after-move,
   bugprone-dangling-handle,
@@ -37,15 +35,10 @@ WarningsAsErrors: >
   performance-no-automatic-move
 
 CheckOptions:
-  # ============================================================================
-  # RUST NAMING CONVENTIONS
-  # ============================================================================
-  
-  # Namespaces: snake_case (like Rust modules: std::io, std::collections)
+
   - key: readability-identifier-naming.NamespaceCase
     value: lower_case
   
-  # Types: PascalCase (like Rust: String, Vec, HashMap)
   - key: readability-identifier-naming.ClassCase
     value: CamelCase
   
@@ -64,14 +57,12 @@ CheckOptions:
   - key: readability-identifier-naming.UnionCase
     value: CamelCase
   
-  # Functions/Methods: snake_case (like Rust: push_back, to_string, from_iter)
   - key: readability-identifier-naming.FunctionCase
     value: lower_case
   
   - key: readability-identifier-naming.MethodCase
     value: lower_case
   
-  # Variables: snake_case (like Rust: my_variable, frame_count)
   - key: readability-identifier-naming.VariableCase
     value: lower_case
   
@@ -81,7 +72,6 @@ CheckOptions:
   - key: readability-identifier-naming.ParameterCase
     value: lower_case
   
-  # Members: snake_case (Rust doesn't use prefixes)
   - key: readability-identifier-naming.PrivateMemberCase
     value: lower_case
   
@@ -91,7 +81,6 @@ CheckOptions:
   - key: readability-identifier-naming.PublicMemberCase
     value: lower_case
   
-  # Constants: SCREAMING_SNAKE_CASE (like Rust: MAX_SIZE, DEFAULT_CAPACITY)
   - key: readability-identifier-naming.ConstantCase
     value: UPPER_CASE
   
@@ -114,36 +103,27 @@ CheckOptions:
   - key: readability-identifier-naming.MacroDefinitionPrefix
     value: HM_
   
-  # Template parameters: PascalCase single letter (like Rust: T, K, V)
   - key: readability-identifier-naming.TemplateParameterCase
     value: CamelCase
   
-  # ============================================================================
-  # RUST-LIKE SAFETY SETTINGS
-  # ============================================================================
-  
-  # Enforce RAII and proper initialization (like Rust's guaranteed initialization)
   - key: cppcoreguidelines-pro-type-member-init.IgnoreArrays
     value: false
   
   - key: cppcoreguidelines-pro-type-member-init.UseAssignment
     value: false
   
-  # Enforce modern C++ practices (like Rust's modern defaults)
   - key: modernize-use-override.IgnoreDestructors
     value: false
   
   - key: modernize-use-nullptr.NullMacros
     value: 'NULL'
   
-  # Memory safety - prefer smart pointers (like Rust's Box, Rc, Arc)
   - key: modernize-make-unique.MakeSmartPtrFunction
     value: 'std::make_unique'
   
   - key: modernize-make-shared.MakeSmartPtrFunction
     value: 'std::make_shared'
   
-  # Enforce const correctness (like Rust's immutability by default)
   - key: readability-const-return-type.IgnoreMacros
     value: false
   
@@ -156,7 +136,6 @@ CheckOptions:
   - key: misc-const-correctness.WarnPointersAsValues
     value: true
   
-  # Function complexity limits (like Rust's preference for small functions)
   - key: readability-function-cognitive-complexity.Threshold
     value: 25
   
@@ -166,12 +145,10 @@ CheckOptions:
   - key: readability-function-size.StatementThreshold
     value: 50
   
-  # Avoid implicit conversions (like Rust's explicit From/Into traits)
   - key: bugprone-implicit-widening-of-multiplication-result.UseCXXStaticCastsInCppSources
     value: true
   
-  # Performance settings (like Rust's zero-cost abstractions)
-  - key: performance-unnecessary-copy-initialization.AllowedTypes
+  - key: performance-unnecessary-copy-initialization.AllowedT ypes
     value: ''
   
   - key: performance-for-range-copy.WarnOnAllAutoCopies

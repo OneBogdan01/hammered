@@ -1,0 +1,16 @@
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp
+)
+
+add_library(hm-app STATIC ${SOURCES})
+
+target_include_directories(hm-app PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(hm-app PUBLIC hm-base)
+
+target_precompile_headers(hm-app PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../hm_base/src/pch.hpp
+)

@@ -1,0 +1,22 @@
+file(GLOB demo_dirs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
+
+foreach(demo ${demo_dirs})
+    set(demo_dir ${CMAKE_CURRENT_SOURCE_DIR}/${demo})
+    
+    # Fix: check for src/main.cpp instead of main.cpp
+    if(IS_DIRECTORY ${demo_dir} AND EXISTS ${demo_dir}/src/main.cpp)
+        message(STATUS "Adding demo: ${demo}")
+        
+        file(GLOB_RECURSE DEMO_SOURCES CONFIGURE_DEPENDS
+            ${demo_dir}/*.cpp
+            ${demo_dir}/*.hpp
+        )
+        
+        add_executable(demo_${demo} ${DEMO_SOURCES})
+        target_link_libraries(demo_${demo} PRIVATE hammered-engine)
+        
+        set_target_properties(demo_${demo} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/demos"
+        )
+    endif()
+endforeach()

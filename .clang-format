@@ -31,7 +31,6 @@ AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakTemplateDeclarations: Yes
 
-SortIncludes: true
 IncludeBlocks: Regroup
 IncludeCategories:
   - Regex: '^<.*\.h>'
@@ -40,7 +39,7 @@ IncludeCategories:
     Priority: 2
   - Regex: '.*'
     Priority: 3
-
+SortIncludes: Never
 # Misc
 DerivePointerAlignment: false
 KeepEmptyLinesAtTheStartOfBlocks: false
