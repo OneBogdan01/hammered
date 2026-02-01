@@ -1,10 +1,10 @@
-file(GLOB children RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
 
-foreach(child ${children})
-    set(child_dir ${CMAKE_CURRENT_SOURCE_DIR}/${child})
-    
-    if(IS_DIRECTORY ${child_dir} AND EXISTS ${child_dir}/CMakeLists.txt)
-        message(STATUS "Adding lib: ${child}")
-        add_subdirectory(${child})
-    endif()
-endforeach()
+hm_add_module(hm_core)
+
+target_precompile_headers(hm_core PUBLIC src/pch.hpp)
+# Define linking (called in phase 2 when all targets exist)
+function(hm_core_link_deps)
+    # No internal deps, but external deps go here
+    # CPMAddPackage("gh:fmtlib/fmt#10.2.1")
+    # target_link_libraries(hm_core PUBLIC fmt::fmt)
+endfunction()

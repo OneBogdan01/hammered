@@ -187,3 +187,46 @@ function(add_game_backends backends)
     set_target_properties(build_all_backends PROPERTIES FOLDER "utilities")
 endfunction()
 
+# Phase 1: Called during add_subdirectory - just creates the target
+function(hm_add_module MODULE_NAME)
+    file(GLOB_RECURSE MODULE_SOURCES CONFIGURE_DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp
+    )
+    
+    set(HAS_CPP FALSE)
+    foreach(src ${MODULE_SOURCES})
+        if(src MATCHES "\\.cpp$")
+            set(HAS_CPP TRUE)
+            break()
+        endif()
+    endforeach()
+    
+    if(HAS_CPP)
+        add_library(${MODULE_NAME} STATIC ${MODULE_SOURCES})
+        target_include_directories(${MODULE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    else()
+        add_library(${MODULE_NAME} INTERFACE)
+        target_include_directories(${MODULE_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    endif()
+    
+    string(REPLACE "hm_" "" SHORT_NAME ${MODULE_NAME})
+    add_library(hm::${SHORT_NAME} ALIAS ${MODULE_NAME})
+endfunction()
+
+# Phase 2: Called after ALL modules exist - safe to link
+function(hm_module_deps MODULE_NAME)
+    set(multiValueArgs DEPS)
+    cmake_parse_arguments(ARG "" "" "${multiValueArgs}" ${ARGN})
+    
+    get_target_property(TYPE ${MODULE_NAME} TYPE)
+    if(TYPE STREQUAL "INTERFACE_LIBRARY")
+        set(LINK_TYPE INTERFACE)
+    else()
+        set(LINK_TYPE PUBLIC)
+    endif()
+    
+    if(ARG_DEPS)
+        target_link_libraries(${MODULE_NAME} ${LINK_TYPE} ${ARG_DEPS})
+    endif()
+endfunction()

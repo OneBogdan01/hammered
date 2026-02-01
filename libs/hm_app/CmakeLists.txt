@@ -1,16 +1,10 @@
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp
-)
 
-add_library(hm-app STATIC ${SOURCES})
+hm_add_module(hm_app)
 
-target_include_directories(hm-app PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_link_libraries(hm-app PUBLIC hm-base)
-
-target_precompile_headers(hm-app PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../hm_base/src/pch.hpp
-)
+function(hm_app_link_deps)
+    hm_module_deps(hm_app DEPS hm_core)
+    
+    # External deps
+    # CPMAddPackage("gh:glfw/glfw#3.4")
+    # target_link_libraries(hm_app PUBLIC glfw)
+endfunction()
