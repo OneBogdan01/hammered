@@ -65,7 +65,7 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "ENABLE_GL_BACKEND": "ON",
         "HM_EDITOR": "ON",
-        "ENABLE_VK_BACKEND": "ON"
+        "ENABLE_VK_BACKEND": "ON",
       },
       "environment": {
         "CC": "cl.exe",
