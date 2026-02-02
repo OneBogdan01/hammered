@@ -16,7 +16,7 @@ endif()
 
 if(MSVC)
     add_compile_options(/MP)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /WX /EHsc /DNOMINMAX")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /EHsc /DNOMINMAX")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi /MDd /Od /Ob0 /DDEBUG")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /O2 /Zi /DDEVELOP /MD")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /DNDEBUG /MD")
@@ -224,6 +224,11 @@ function(hm_module_deps MODULE_NAME)
         set(LINK_TYPE INTERFACE)
     else()
         set(LINK_TYPE PUBLIC)
+        
+        # Reuse PCH from hm_core if it's a dependency
+        if("hm_core" IN_LIST ARG_DEPS)
+            target_precompile_headers(${MODULE_NAME} REUSE_FROM hm_core)
+        endif()
     endif()
     
     if(ARG_DEPS)

@@ -31,15 +31,24 @@ AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakTemplateDeclarations: Yes
 
+SortIncludes: false
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: '^<.*\.h>'
+  # 1. Module's own header
+  - Regex: '^"hm_[^"]*\.hpp"'
     Priority: 1
-  - Regex: '^<.*>'
+    
+  # 2. Other project headers
+  - Regex: '^".*"'
     Priority: 2
-  - Regex: '.*'
+    
+  # 3. External libraries
+  - Regex: '^<SDL3/.*>'
     Priority: 3
-SortIncludes: Never
+    
+  # 4. Standard library
+  - Regex: '^<.*>'
+    Priority: 4
 # Misc
 DerivePointerAlignment: false
 KeepEmptyLinesAtTheStartOfBlocks: false

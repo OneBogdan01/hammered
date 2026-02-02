@@ -2,5 +2,5 @@
 
 using namespace hm;
 int main() {
-    App::create().run();
+    App::create().add_plugin<WindowPlugin>().run();
 }

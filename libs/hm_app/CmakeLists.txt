@@ -5,6 +5,7 @@ function(hm_app_link_deps)
     hm_module_deps(hm_app DEPS hm_core)
     
     # External deps
-    # CPMAddPackage("gh:glfw/glfw#3.4")
-    # target_link_libraries(hm_app PUBLIC glfw)
+    CPMAddPackage("gh:skypjack/entt@3.16.0")
+
+    target_link_libraries(hm_app PUBLIC EnTT::EnTT)
 endfunction()
