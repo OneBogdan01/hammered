@@ -1,52 +1,56 @@
 #include "hm_window.hpp"
-
 #include "app.hpp"
 #include "window.hpp"
 
-#include <SDL3/SDL_init.h>
-#include <SDL3/SDL_stdinc.h>
-#include <SDL3/SDL_video.h>
-namespace {
-SDL_Window* window = nullptr;
-}
+#include <SDL3/SDL.h>
 
-using namespace hm;
+namespace hm {
+
 void WindowPlugin::build(App& app) {
-    // TODO add events for windowing
-    // app.add_message::<WindowEvent>()
-    //     .add_message::<WindowResized>()
-    //     .add_message::<WindowCreated>()
-    //     .add_message::<WindowClosing>()
-    //     .add_message::<WindowClosed>()
-    //     .add_message::<WindowCloseRequested>()
-    //     .add_message::<WindowDestroyed>()
-    //     .add_message::<RequestRedraw>()
-    //     .add_message::<CursorMoved>()
-    //     .add_message::<CursorEntered>()
-    //     .add_message::<CursorLeft>()
-    //     .add_message::<Ime>()
-    //     .add_message::<WindowFocused>()
-    //     .add_message::<WindowOccluded>()
-    //     .add_message::<WindowScaleFactorChanged>()
-    //     .add_message::<WindowBackendScaleFactorChanged>()
-    //     .add_message::<FileDragAndDrop>()
-    //     .add_message::<WindowMoved>()
-    //     .add_message::<WindowThemeChanged>()
-    //     .add_message::<AppLifecycle>();
-    app.insert_resource(Window{.title = "My Game", .width = 640, .height = 480});
-    app.add_systems(Schedule::Startup, create_window);
-    app.add_systems(Schedule::First, poll_events);
-    app.add_systems(Schedule::PostShutdown, destroy_window);
-}
-void create_window(Commands& cmd, Res<WindowConfig> config) {
-    if (!SDL_Init(SDL_INIT_VIDEO)) {
-        // panic
-    }
+    if (!app.get_resource<WindowConfig>())
+        app.insert_resource(WindowConfig{});
 
-    window = SDL_CreateWindow(config->title.c_str(), config->width, config->height,
-                              SDL_WINDOW_RESIZABLE);
+    app.add_systems(Schedule::Startup, [](App& a) {
+        if (!SDL_Init(SDL_INIT_VIDEO)) {
+            SDL_Log("SDL_Init failed: %s", SDL_GetError());
+            return;
+        }
 
-    if (!window) {
-        // panic
-    }
+        auto* cfg = a.get_resource<WindowConfig>();
+        auto* win =
+            SDL_CreateWindow(cfg->title.c_str(), cfg->width, cfg->height, SDL_WINDOW_RESIZABLE);
+        if (!win) {
+            SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
+            return;
+        }
+
+        auto* renderer = SDL_CreateRenderer(win, nullptr);
+        if (!renderer) {
+            SDL_Log("SDL_CreateRenderer failed: %s", SDL_GetError());
+            SDL_DestroyWindow(win);
+            return;
+        }
+
+        SDL_SetRenderVSync(renderer, -1);
+        SDL_ShowWindow(win);
+
+        a.insert_resource(WindowHandle{.window = win, .renderer = renderer});
+        SDL_Log("Window created successfully");
+    });
+
+    app.add_systems(Schedule::Shutdown, [](App& a) {
+        auto* h = a.get_resource_mut<WindowHandle>();
+        if (!h)
+            return;
+        if (h->renderer)
+            SDL_DestroyRenderer(h->renderer);
+        if (h->window)
+            SDL_DestroyWindow(h->window);
+        h->renderer = nullptr;
+        h->window = nullptr;
+        SDL_Quit();
+        SDL_Log("Window destroyed");
+    });
 }
+
+} // namespace hm

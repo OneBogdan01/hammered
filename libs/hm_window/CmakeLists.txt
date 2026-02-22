@@ -12,5 +12,6 @@ function(hm_window_link_deps)
         "SDL_SHARED OFF"
         "SDL_STATIC ON"
 )
+# TODO remove public
 target_link_libraries(hm_window PUBLIC SDL3::SDL3-static)
 endfunction()
