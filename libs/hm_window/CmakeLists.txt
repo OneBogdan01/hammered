@@ -7,7 +7,7 @@ function(hm_window_link_deps)
     CPMAddPackage(
     NAME SDL3
     GITHUB_REPOSITORY libsdl-org/SDL
-    GIT_TAG release-3.4.0 
+    GIT_TAG release-3.4.2 
     OPTIONS
         "SDL_SHARED OFF"
         "SDL_STATIC ON"

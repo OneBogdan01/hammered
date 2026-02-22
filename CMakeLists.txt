@@ -9,9 +9,9 @@ set(HM_VERSION_PATCH 1)
 project(hammered_engine VERSION ${HM_VERSION_MAJOR}.${HM_VERSION_MINOR}.${HM_VERSION_PATCH})
 
 option(HM_BUILD_DEMOS "Build demos" ON)
-# Emscripten: output .html so the browser can load it
+
 if(EMSCRIPTEN)
-    set(CMAKE_EXECUTABLE_SUFFIX ".html" CACHE INTERNAL "")
+	set(CMAKE_EXECUTABLE_SUFFIX ".html")
 endif()
 
 include(cmake/CPM.cmake)

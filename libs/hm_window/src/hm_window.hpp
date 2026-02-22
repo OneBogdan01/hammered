@@ -8,7 +8,6 @@ namespace hm {
 class WindowPlugin : public Plugin {
   public:
     HM_PLUGIN(Window)
-    ~WindowPlugin() override;
     void build(App& app) override;
 };
 } // namespace hm

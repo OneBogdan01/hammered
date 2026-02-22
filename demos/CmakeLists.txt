@@ -1,9 +1,7 @@
 file(GLOB demo_dirs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
-
 foreach(demo ${demo_dirs})
     set(demo_dir ${CMAKE_CURRENT_SOURCE_DIR}/${demo})
     
-    # Fix: check for src/main.cpp instead of main.cpp
     if(IS_DIRECTORY ${demo_dir} AND EXISTS ${demo_dir}/src/main.cpp)
         message(STATUS "Adding demo: ${demo}")
         
@@ -14,6 +12,28 @@ foreach(demo ${demo_dirs})
         
         add_executable(demo_${demo} ${DEMO_SOURCES})
         target_link_libraries(demo_${demo} PRIVATE hammered-engine)
+        
+        if(EMSCRIPTEN)
+            set_target_properties(demo_${demo} PROPERTIES SUFFIX ".html")
+            
+            # Shared flags
+            target_link_options(demo_${demo} PRIVATE
+                -sSTACK_SIZE=1048576
+                -sINITIAL_MEMORY=33554432
+                -sEXIT_RUNTIME=0
+                -sALLOW_MEMORY_GROWTH=1
+            )
+
+            # Debug-only flags
+            if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+                target_link_options(demo_${demo} PRIVATE
+                    -sASSERTIONS=2
+                    -sSTACK_OVERFLOW_CHECK=2
+                    -sSAFE_HEAP=1
+                    -sGL_ASSERTIONS=1
+                )
+            endif()
+        endif()
         
         set_target_properties(demo_${demo} PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/demos"

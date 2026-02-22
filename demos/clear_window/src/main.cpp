@@ -2,12 +2,12 @@
 
 #include "entry.hpp"
 #include "hm_window.hpp"
-
+#include "window.hpp"
+#include <cmath>
 void hm_setup(hm::App& app) {
     app.insert_resource(hm::WindowConfig{.title = "Hello Hammered", .width = 400, .height = 400});
     app.add_plugin<hm::WindowPlugin>();
 
-    // Cycling background color — same as the SDL example
     app.add_systems(hm::Schedule::Update, [](hm::App& a) {
         auto* h = a.get_resource<hm::WindowHandle>();
         if (!h || !h->renderer)
