@@ -1,55 +1,24 @@
 ﻿cmake_minimum_required(VERSION 3.24.0)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(HM_VERSION_MAJOR 0)
+set(HM_VERSION_MINOR 0)
+set(HM_VERSION_PATCH 1)
+project(hammered_engine VERSION ${HM_VERSION_MAJOR}.${HM_VERSION_MINOR}.${HM_VERSION_PATCH})
 
-include(FetchContent)
-set (CMAKE_CXX_STANDARD 23)
-## Versioning
-set( HM_VERSION_MAJOR 0 )
-set( HM_VERSION_MINOR 0 )
-set( HM_VERSION_PATCH 1 )
+option(HM_BUILD_DEMOS "Build demos" ON)
 
-set( HM_VERSION ${HM_VERSION_MAJOR}.${HM_VERSION_MINOR}.${HM_VERSION_PATCH})
-message(STATUS "Hammered Engine Version: ${HM_VERSION}")
-
-project(hammered_engine VERSION ${HM_VERSION})
-## Keep it tidy
-include(cmake_utility/utility.cmake)
-
-# Backend selection
-set(GAME_BACKENDS "")
-
-option(HM_EDITOR "Build editor configuration" OFF)
-
-
-
-option(ENABLE_GL_BACKEND "Build with OpenGL backend" ON)
-option(ENABLE_VK_BACKEND "Build with Vulkan backend" ON)
-
-
-if(ENABLE_VK_BACKEND)
-    list(APPEND GAME_BACKENDS vk)
-endif()
-if(ENABLE_GL_BACKEND)
-    list(APPEND GAME_BACKENDS gl)
+if(EMSCRIPTEN)
+	set(CMAKE_EXECUTABLE_SUFFIX ".html")
 endif()
 
-# Error if no backends enabled
-if(NOT GAME_BACKENDS)
-    message(FATAL_ERROR "No game backend enabled! Enable at least one of ENABLE_GL_BACKEND or ENABLE_VK_BACKEND")
+include(cmake/CPM.cmake)
+include(cmake/utility.cmake)
+
+add_subdirectory(libs)
+
+if(HM_BUILD_DEMOS)
+    add_subdirectory(demos)
 endif()
-
-# Adds engine code and externals
-add_subdirectory(engine)
-
-# Editor defines
-if (HM_EDITOR)
-    target_compile_definitions(hammered_engine_common INTERFACE HM_EDITOR=1)
-endif()
-
-
-# Sets up the backends .exes
-add_game_backends("${GAME_BACKENDS}")
-
-
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT "game_vk")
-

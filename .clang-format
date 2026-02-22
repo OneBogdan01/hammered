@@ -1,27 +1,56 @@
-# Format Style Options - Created with Clang Power Tools
 ---
-AllowAllArgumentsOnNextLine: true
-AllowAllConstructorInitializersOnNextLine: true
-AllowShortBlocksOnASingleLine: Never
-AllowShortCaseLabelsOnASingleLine: false
-AllowShortLambdasOnASingleLine: None
-AllowShortEnumsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: Inline
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 100
+
+PointerAlignment: Left  
+ReferenceAlignment: Left
+
+BreakBeforeBraces: Attach
+
+# Spacing
+SpaceAfterCStyleCast: true
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpacesInAngles: false
+
+# Alignment
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignOperands: true
+AlignTrailingComments: true
+
+# Breaking
+AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
-AlwaysBreakAfterReturnType: None
-BasedOnStyle: Google
-BreakBeforeBraces: Allman
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
+AlwaysBreakTemplateDeclarations: Yes
+
 SortIncludes: false
-SpaceAfterTemplateKeyword: false
-SpaceBeforeAssignmentOperators: true
-SpaceBeforeCpp11BracedList: true
-SpaceInEmptyBlock: false
-SpacesBeforeTrailingComments: 1
-SpacesInAngles: false
-SpacesInContainerLiterals: true
-SpacesInConditionalStatement: false
-SpacesInParentheses: false
-Standard: c++20
-...
+IncludeBlocks: Regroup
+IncludeCategories:
+  # 1. Module's own header
+  - Regex: '^"hm_[^"]*\.hpp"'
+    Priority: 1
+    
+  # 2. Other project headers
+  - Regex: '^".*"'
+    Priority: 2
+    
+  # 3. External libraries
+  - Regex: '^<SDL3/.*>'
+    Priority: 3
+    
+  # 4. Standard library
+  - Regex: '^<.*>'
+    Priority: 4
+# Misc
+DerivePointerAlignment: false
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation: None

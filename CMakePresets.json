@@ -65,7 +65,7 @@
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "ENABLE_GL_BACKEND": "ON",
         "HM_EDITOR": "ON",
-        "ENABLE_VK_BACKEND": "ON"
+        "ENABLE_VK_BACKEND": "ON",
       },
       "environment": {
         "CC": "cl.exe",
@@ -74,56 +74,6 @@
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
           "hostOS": [ "Windows" ]
-        }
-      }
-    },
-    {
-      "name": "windows-clang-debug",
-      "displayName": "Windows x64 Debug (Clang)",
-      "description": "Sets Ninja generator with Clang compiler, x64 architecture, build and install directory, debug build type",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "environment": {
-        "CC": "clang-cl",
-        "CXX": "clang-cl"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
-      },
-
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "intelliSenseMode": "windows-clang-x64"
-        }
-      }
-    },
-    {
-      "name": "windows-clang-release",
-      "displayName": "Windows x64 Release (Clang)",
-      "description": "Sets Ninja generator with Clang compiler, x64 architecture, build and install directory, release build type",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
-      },
-      "environment": {
-        "CC": "clang-cl",
-        "CXX": "clang-cl"
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "intelliSenseMode": "windows-clang-x64"
         }
       }
     },
