@@ -31,7 +31,7 @@ void WindowPlugin::build(App& app) {
             return;
         }
 
-        SDL_SetRenderVSync(renderer, -1);
+        SDL_SetRenderVSync(renderer, 1);
         SDL_ShowWindow(win);
 
         a.insert_resource(WindowHandle{.window = win, .renderer = renderer});

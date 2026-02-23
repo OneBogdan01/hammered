@@ -1,8 +1,0 @@
-
-hm_add_module(hm_core)
-
-function(hm_core_link_deps)
-    # No internal deps, but external deps go here
-    # CPMAddPackage("gh:fmtlib/fmt#10.2.1")
-    # target_link_libraries(hm_core PUBLIC fmt::fmt)
-endfunction()

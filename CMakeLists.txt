@@ -10,9 +10,6 @@ project(hammered_engine VERSION ${HM_VERSION_MAJOR}.${HM_VERSION_MINOR}.${HM_VER
 
 option(HM_BUILD_DEMOS "Build demos" ON)
 
-if(EMSCRIPTEN)
-	set(CMAKE_EXECUTABLE_SUFFIX ".html")
-endif()
 
 include(cmake/CPM.cmake)
 include(cmake/utility.cmake)

@@ -37,14 +37,9 @@ class App {
         return &m_world.ensure<T>();
     }
 
-    App& add_systems(Schedule label, std::function<void(App&)> fn) {
-        m_schedules[static_cast<int>(label)].push_back(std::move(fn));
-        return *this;
-    }
+    App& add_systems(Schedule label, std::function<void(App&)> fn);
 
-    void startup() {
-        run_schedule(Schedule::Startup);
-    }
+    void startup();
 
     void update() {
         run_schedule(Schedule::PreUpdate);
@@ -61,13 +56,7 @@ class App {
     }
 
   private:
-    void run_schedule(Schedule label) {
-        auto it = m_schedules.find(static_cast<int>(label));
-        if (it == m_schedules.end())
-            return;
-        for (auto& sys : it->second)
-            sys(*this);
-    }
+    void run_schedule(Schedule label);
 
     flecs::world m_world;
     std::vector<std::unique_ptr<Plugin>> m_plugins;

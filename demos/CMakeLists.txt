@@ -18,12 +18,11 @@ foreach(demo ${demo_dirs})
             
             # Shared flags
             target_link_options(demo_${demo} PRIVATE
-                -sSTACK_SIZE=1048576
-                -sINITIAL_MEMORY=33554432
-                -sEXIT_RUNTIME=0
-                -sALLOW_MEMORY_GROWTH=1
+                -sALLOW_MEMORY_GROWTH=1 
+                -sSTACK_SIZE=1mb
+                -sEXPORTED_RUNTIME_METHODS=cwrap 
+                --shell-file ${CMAKE_SOURCE_DIR}/shell.html
             )
-
             # Debug-only flags
             if(CMAKE_BUILD_TYPE STREQUAL "Debug")
                 target_link_options(demo_${demo} PRIVATE
@@ -36,7 +35,8 @@ foreach(demo ${demo_dirs})
         endif()
         
         set_target_properties(demo_${demo} PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/demos"
+            OUTPUT_NAME "index"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/demos/${demo}"
         )
     endif()
 endforeach()

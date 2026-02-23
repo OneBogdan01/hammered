@@ -1,11 +1,10 @@
 ﻿#pragma once
+#include "app.hpp"
+
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-namespace hm {
-class App;
-}
 // User implements this per demo/app
 extern void hm_setup(hm::App& app);
 
