@@ -6,39 +6,41 @@
 
 namespace hm {
 
-void WindowPlugin::build(App& app) {
-    if (!app.get_resource<WindowConfig>())
-        app.insert_resource(WindowConfig{});
+WindowModule::WindowModule(World& world) {
+    world.component<WindowConfig>();
 
-    app.add_systems(Schedule::Startup, [](App& a) {
-        if (!SDL_Init(SDL_INIT_VIDEO)) {
-            SDL_Log("SDL_Init failed: %s", SDL_GetError());
-            return;
-        }
+    if (world.has<WindowConfig>() == false) {
+        world.add<WindowConfig>();
+    }
+    WindowConfig cfg{world.get<WindowConfig>()};
 
-        auto* cfg = a.get_resource<WindowConfig>();
-        auto* win =
-            SDL_CreateWindow(cfg->title.c_str(), cfg->width, cfg->height, SDL_WINDOW_RESIZABLE);
-        if (!win) {
-            SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
-            return;
-        }
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        flecs::log::err("SDL_Init failed: {}", SDL_GetError());
 
-        auto* renderer = SDL_CreateRenderer(win, nullptr);
-        if (!renderer) {
-            SDL_Log("SDL_CreateRenderer failed: %s", SDL_GetError());
-            SDL_DestroyWindow(win);
-            return;
-        }
+        return;
+    }
 
-        SDL_SetRenderVSync(renderer, 1);
-        SDL_ShowWindow(win);
+    auto* win = SDL_CreateWindow(cfg.title.c_str(), cfg.width, cfg.height, SDL_WINDOW_RESIZABLE);
+    if (!win) {
+        flecs::log::err("SDL_CreateWindow failed: {}", SDL_GetError());
+        return;
+    }
 
-        a.insert_resource(WindowHandle{.window = win, .renderer = renderer});
-        SDL_Log("Window created successfully");
-    });
+    // TODO renderer is another story
+    auto* renderer = SDL_CreateRenderer(win, nullptr);
+    if (!renderer) {
+        flecs::log::err("SDL_CreateRenderer failed: {}", SDL_GetError());
+        SDL_DestroyWindow(win);
+        return;
+    }
 
-    app.add_systems(Schedule::Shutdown, [](App& a) {
+    SDL_SetRenderVSync(renderer, 1);
+
+    world.set<WindowHandle>({.window = win, .renderer = renderer});
+
+    flecs::log::trace("Window created miraculously");
+
+    world.atfini() app.add_systems(Schedule::Shutdown, [](App& a) {
         auto* h = a.get_resource_mut<WindowHandle>();
         if (!h)
             return;
@@ -52,5 +54,4 @@ void WindowPlugin::build(App& app) {
         SDL_Log("Window destroyed");
     });
 }
-
 } // namespace hm

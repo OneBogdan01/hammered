@@ -6,7 +6,7 @@
 #include <cmath>
 void hm_setup(hm::App& app) {
     app.insert_resource(hm::WindowConfig{.title = "Hello Hammered", .width = 400, .height = 400});
-    app.add_plugin<hm::WindowPlugin>();
+    app.add_plugin<hm::WindowModule>();
 
     app.add_systems(hm::Schedule::Update, [](hm::App& a) {
         auto* h = a.get_resource<hm::WindowHandle>();

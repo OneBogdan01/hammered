@@ -1,12 +1,10 @@
 #pragma once
 #include "hm_core.hpp"
+#include "SDL3/SDL_render.h"
+#include "SDL3/SDL_video.h"
 
 namespace hm {
-struct Window {
-    u32 width = 0u;
-    u32 height = 0u;
-    std::string title{"Default Window Name"};
-};
+
 struct WindowConfig {
     std::string title = "Hammered Engine";
     i32 width = 800;
