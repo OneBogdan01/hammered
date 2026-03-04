@@ -6,17 +6,16 @@
 #include <SDL3/SDL_main.h>
 
 // User implements this per demo/app
-extern void hm_setup(hm::App& app);
+extern void hm_setup(hm::World& world);
 
 // SDL callbacks must be at global scope with C linkage —
 // SDL_main.h handles the extern "C" for you, but they
 // cannot be inside a namespace.
 
 inline SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
-    auto* app = new hm::App();
-    hm_setup(*app);
-    app->startup();
-    *appstate = app;
+    auto* world = new hm::World();
+    hm_setup(*world);
+    *appstate = world;
     return SDL_APP_CONTINUE;
 }
 
@@ -32,15 +31,15 @@ inline SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
 }
 
 inline SDL_AppResult SDL_AppIterate(void* appstate) {
-    auto* app = static_cast<hm::App*>(appstate);
-    app->update();
+    auto* app = static_cast<hm::World*>(appstate);
+    app->get_world().progress();
     return SDL_APP_CONTINUE;
 }
 
 inline void SDL_AppQuit(void* appstate, SDL_AppResult result) {
-    auto* app = static_cast<hm::App*>(appstate);
+    auto* app = static_cast<hm::World*>(appstate);
     if (app) {
-        app->shutdown();
+        app->get_world().quit();
         delete app;
     }
 }

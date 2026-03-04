@@ -6,9 +6,7 @@ function(hm_app_link_deps)
     CPMAddPackage(
         NAME flecs
         GITHUB_REPOSITORY SanderMertens/flecs
-        GIT_TAG v4.1.4
-        OPTIONS
-            "FLECS_SHARED OFF"
+        GIT_TAG master
     )
     target_link_libraries(hm_app PUBLIC flecs::flecs_static)
 
