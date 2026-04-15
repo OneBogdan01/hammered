@@ -4,7 +4,7 @@
     {
       "name": "windows-msvc-debug",
       "displayName": "Windows MSVC Debug",
-      "generator": "Visual Studio 17 2022",
+      "generator": "Visual Studio 18 2026",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "architecture": "x64",
       "cacheVariables": {

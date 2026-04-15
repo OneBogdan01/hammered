@@ -7,16 +7,15 @@ layout(location = 0) out vec3 outColor;
 #endif
 
 #ifndef VULKAN
-
 layout(location = 0) uniform mat4 uViewProj;
 #endif
 
 void main()
 {
     const vec3 positions[3] = vec3[3](
-        vec3(1.0, 1.0, 0.0),
-        vec3(-1.0, 1.0, 0.0),
-        vec3(0.0, -1.0, 0.0)
+        vec3( 1.0, -1.0, 0.0),
+        vec3(-1.0, -1.0, 0.0),
+        vec3( 0.0,  1.0, 0.0)
     );
 
     const vec3 colors[3] = vec3[3](
@@ -25,16 +24,12 @@ void main()
         vec3(0.0, 0.0, 1.0)
     );
 
-    mat4 viewProj = mat4(1.0);
+    vec4 pos = vec4(positions[gl_VertexID], 1.0);
 
 #ifdef VULKAN
-    gl_Position = vec4(positions[gl_VertexID], 1.0);
-
-#else
-    viewProj = uViewProj;
-    gl_Position = viewProj * vec4(positions[gl_VertexID], 1.0);
-
+    pos.y = -pos.y;  // Vulkan NDC Y is flipped vs OpenGL
 #endif
 
+    gl_Position = pos;
     outColor = colors[gl_VertexID];
 }

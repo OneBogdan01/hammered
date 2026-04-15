@@ -1,6 +1,10 @@
 #version 460 core
 layout (local_size_x = 16, local_size_y = 16) in;
-layout(rgba8,set = 0, binding = 0) uniform image2D image;
+#ifdef VULKAN
+layout(rgba16f, set = 0, binding = 0) uniform image2D image;
+#else
+layout(rgba16f, binding = 0) uniform image2D image;
+#endif
 
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
