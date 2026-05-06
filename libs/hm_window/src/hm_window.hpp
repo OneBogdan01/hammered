@@ -1,7 +1,6 @@
 #pragma once
 #include "plugin.hpp"
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_video.h"
+
 
 namespace hm {
 

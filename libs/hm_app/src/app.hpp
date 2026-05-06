@@ -1,12 +1,9 @@
 #pragma once
-
 #include "plugin.hpp"
 
 #include <flecs.h>
-#include <functional>
-#include <memory>
 #include <stack>
-#include <vector>
+
 
 namespace hm {
 

@@ -1,6 +1,5 @@
 #pragma once
-#include "hm_core.hpp"
-
+#include <SDL3/SDL_video.h>
 namespace hm {
 
 struct WindowConfig {
