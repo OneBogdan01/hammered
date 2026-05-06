@@ -14,7 +14,6 @@ foreach(child ${children})
     endif()
 endforeach()
 
-# Phase 2: resolve dependencies
 foreach(module ${HM_ALL_MODULES})
     if(COMMAND ${module}_link_deps)
         cmake_language(CALL ${module}_link_deps)

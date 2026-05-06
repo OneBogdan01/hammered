@@ -1,15 +1,19 @@
 #include "app.hpp"
-hm::App& hm::App::add_systems(Schedule label, std::function<void(App&)> fn) {
-    m_schedules[static_cast<int>(label)].push_back(std::move(fn));
-    return *this;
+
+#include <algorithm>
+
+void hm::App::startup() const {
+    for (auto& fn : m_startup_fn) fn();
+
 }
-void hm::App::startup() {
-    run_schedule(Schedule::Startup);
+void hm::App::update() const {
+m_world.progress();
 }
-void hm::App::run_schedule(Schedule label) {
-    auto it = m_schedules.find(static_cast<int>(label));
-    if (it == m_schedules.end())
-        return;
-    for (auto& sys : it->second)
-        sys(*this);
+void hm::App::shutdown() {
+    while (!m_shutdown_fn.empty()) {
+        m_shutdown_fn.top()();
+        m_shutdown_fn.pop();
+    }
+    m_world.quit();
 }
+
