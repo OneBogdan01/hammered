@@ -14,8 +14,11 @@ foreach(demo ${demo_dirs})
         target_link_libraries(demo_${demo} PRIVATE hammered-engine)
         
         if(EMSCRIPTEN)
-            set_target_properties(demo_${demo} PROPERTIES SUFFIX ".html")
-            
+            set_target_properties(demo_${demo} PROPERTIES
+                    SUFFIX ".html"
+                    OUTPUT_NAME "index"
+            )
+
             # Shared flags
             target_link_options(demo_${demo} PRIVATE
                 -sALLOW_MEMORY_GROWTH=1 
@@ -33,10 +36,18 @@ foreach(demo ${demo_dirs})
                 )
             endif()
         endif()
-        
+
         set_target_properties(demo_${demo} PROPERTIES
-            OUTPUT_NAME "index"
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/demos/${demo}"
+                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/demos/${demo}"
         )
+
+        if(IS_DIRECTORY ${demo_dir}/assets)
+            add_custom_command(TARGET demo_${demo} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+                    ${demo_dir}/assets
+                    $<TARGET_FILE_DIR:demo_${demo}>/assets
+                    COMMENT "Copying [${demo}] assets"
+            )
+        endif()
     endif()
 endforeach()
