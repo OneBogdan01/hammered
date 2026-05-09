@@ -90,9 +90,9 @@ void hm_setup(hm::App& app) {
         PositionColorVertex* transferData = static_cast<PositionColorVertex*>(
             SDL_MapGPUTransferBuffer(gpu_device->gpu_device, transferBuffer, false));
 
-        transferData[0] = PositionColorVertex {-1, -1, 0, 255, 0, 0, 255};
-        transferData[1] = PositionColorVertex {1, -1, 0, 0, 255, 0, 255};
-        transferData[2] = PositionColorVertex {0, 1, 0, 0, 0, 255, 255};
+        transferData[0] = PositionColorVertex {-1, 1, 0, 255, 0, 0, 255};
+        transferData[1] = PositionColorVertex {-1, -3, 0, 0, 255, 0, 255};
+        transferData[2] = PositionColorVertex {3, 1, 0, 0, 0, 255, 255};
 
         SDL_UnmapGPUTransferBuffer(gpu_device->gpu_device, transferBuffer);
 
