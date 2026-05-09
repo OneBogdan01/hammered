@@ -42,12 +42,13 @@ foreach(demo ${demo_dirs})
         )
 
         if(IS_DIRECTORY ${demo_dir}/assets)
-            add_custom_command(TARGET demo_${demo} POST_BUILD
+            add_custom_target(demo_${demo}_copy_assets ALL
                     COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
                     ${demo_dir}/assets
                     $<TARGET_FILE_DIR:demo_${demo}>/assets
                     COMMENT "Copying [${demo}] assets"
             )
+            add_dependencies(demo_${demo} demo_${demo}_copy_assets)
         endif()
     endif()
 endforeach()

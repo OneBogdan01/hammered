@@ -7,7 +7,9 @@
 
 static SDL_GPUGraphicsPipeline* pipeline;
 static SDL_GPUBuffer* vertex_buffer;
-
+struct PositionColorVertex {
+    float x, y, z;
+};
 void hm_setup(hm::App& app) {
     using namespace hm;
 
@@ -29,7 +31,7 @@ void hm_setup(hm::App& app) {
         }
 
         SDL_GPUShader* fragmentShader =
-            hm::LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 0, 0, 0);
+            hm::LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 0, 0);
         if (fragmentShader == NULL) {
             SDL_Log("Failed to create fragment shader!");
             return;
@@ -44,14 +46,23 @@ void hm_setup(hm::App& app) {
                                                    .instance_step_rate = 0};
         SDL_GPUColorTargetDescription target_desc{
             .format =
-                SDL_GetGPUSwapchainTextureFormat(gpu_device->gpu_device, window_handle->window)};
-        SDL_GPUVertexAttribute vertex_attrs[] = {
-         {.location = 0, .buffer_slot = 0,
-          .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3, .offset = 0},
-         {.location = 1, .buffer_slot = 0,
-          .format = SDL_GPU_VERTEXELEMENTFORMAT_UBYTE4_NORM,
-          .offset = sizeof(float) * 3},
-     };
+                SDL_GetGPUSwapchainTextureFormat(gpu_device->gpu_device, window_handle->window),
+            .blend_state = SDL_GPUColorTargetBlendState{
+        .src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA,
+        .dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+        .color_blend_op        = SDL_GPU_BLENDOP_ADD,
+        .src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE,
+        .dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+        .alpha_blend_op        = SDL_GPU_BLENDOP_ADD,
+        .color_write_mask      = 0xF,
+        .enable_blend          = true,
+    },};
+        SDL_GPUVertexAttribute vertex_attrs[] = {{.location = 0,
+                                                  .buffer_slot = 0,
+                                                  .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3,
+                                                  .offset = 0}
+
+        };
         // Create the pipeline
         SDL_GPUGraphicsPipelineCreateInfo pipelineCreateInfo = {
             .vertex_shader = vertexShader,
@@ -61,7 +72,7 @@ void hm_setup(hm::App& app) {
                 SDL_GPUVertexInputState{.vertex_buffer_descriptions = &buffer_desc,
                                         .num_vertex_buffers = 1,
                                         .vertex_attributes = vertex_attrs,
-                                        .num_vertex_attributes = 2},
+                                        .num_vertex_attributes = 1},
             .primitive_type = SDL_GPU_PRIMITIVETYPE_TRIANGLELIST,
             .target_info = {
                 .color_target_descriptions = &target_desc,
@@ -90,9 +101,9 @@ void hm_setup(hm::App& app) {
         PositionColorVertex* transferData = static_cast<PositionColorVertex*>(
             SDL_MapGPUTransferBuffer(gpu_device->gpu_device, transferBuffer, false));
 
-        transferData[0] = PositionColorVertex {-1, 1, 0, 255, 0, 0, 255};
-        transferData[1] = PositionColorVertex {-1, -3, 0, 0, 255, 0, 255};
-        transferData[2] = PositionColorVertex {3, 1, 0, 0, 0, 255, 255};
+        transferData[0] = PositionColorVertex{-1, 1, 0};
+        transferData[1] = PositionColorVertex{-1, -3, 0};
+        transferData[2] = PositionColorVertex{3, 1, 0};
 
         SDL_UnmapGPUTransferBuffer(gpu_device->gpu_device, transferBuffer);
 
@@ -111,7 +122,7 @@ void hm_setup(hm::App& app) {
         SDL_ReleaseGPUTransferBuffer(gpu_device->gpu_device, transferBuffer);
     });
     app.add_systems(Schedule::Update, [](App& a) {
-        auto& world = a.world();
+        const auto& world = a.world();
         const auto* gpu_device = world.try_get<RendererHandle>();
         const auto* window_handle = world.try_get<WindowHandle>();
         if (!gpu_device || !window_handle)
@@ -133,18 +144,29 @@ void hm_setup(hm::App& app) {
         if (swapchainTexture != nullptr) {
             SDL_GPUColorTargetInfo colorTargetInfo = {nullptr};
             colorTargetInfo.texture = swapchainTexture;
-            auto t = SDL_GetTicks() / 1000.f;
-            auto r = static_cast<float>((std::sin(t) + 1) / 2.0);
-            auto g = static_cast<float>((std::sin(t / 2) + 1) / 2.0);
-            auto b = static_cast<float>((std::sin(t * 2) + 1) / 2.0);
-            colorTargetInfo.clear_color = SDL_FColor{r, g, b, 1.0f};
+            const auto time = SDL_GetTicks() / 1000.f;
+            // const auto r = static_cast<float>((std::sin(time) + 1) / 2.0);
+            // const auto g = static_cast<float>((std::sin(time / 2) + 1) / 2.0);
+            // const auto b = static_cast<float>((std::sin(time * 2) + 1) / 2.0);
+            colorTargetInfo.clear_color = SDL_FColor{0.0f, 0.0f, 0.0f, 1.0f};
             colorTargetInfo.load_op = SDL_GPU_LOADOP_CLEAR;
             colorTargetInfo.store_op = SDL_GPU_STOREOP_STORE;
 
             SDL_GPURenderPass* renderPass =
                 SDL_BeginGPURenderPass(cmdbuf, &colorTargetInfo, 1, nullptr);
             SDL_BindGPUGraphicsPipeline(renderPass, pipeline);
-            SDL_GPUBufferBinding binding{.buffer = vertex_buffer, .offset = 0};
+            struct WindowSize {
+                f32 w;
+                f32 h;
+                f32 t;
+            } window_size;
+            int w, h;
+            SDL_GetWindowSizeInPixels(window_handle->window, &w, &h);
+            window_size = {.w = static_cast<float>(w), .h = static_cast<float>(h), .t = time};
+
+            SDL_PushGPUFragmentUniformData(cmdbuf, 0, &window_size, sizeof(window_size));
+
+            const SDL_GPUBufferBinding binding{.buffer = vertex_buffer, .offset = 0};
             SDL_BindGPUVertexBuffers(renderPass, 0, &binding, 1);
             SDL_DrawGPUPrimitives(renderPass, 3, 1, 0, 0);
 

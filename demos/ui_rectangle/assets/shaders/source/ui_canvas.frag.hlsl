@@ -1,4 +1,27 @@
-float4 main(float4 Color : TEXCOORD0) : SV_Target0
+//space 3 is used in fragment shaders by SDL_GPU for uniform buffers as convention
+cbuffer Frame: register(b0, space3)
 {
-    return Color;
+    float2 res;
+    float time;
+};
+float sdBox( float2 p, float2 b )
+{
+    float2 d = abs(p)-b;
+    return length(max(d,0.0)) + min(max(d.x,d.y),0.0);
+}
+float4 main(float4 screenSpace : SV_Position ) : SV_Target
+{
+
+     float  aspect = res.x / res.y;
+    float2 uv     = (screenSpace.xy * 2.0 - res) / res.y;
+    
+    float2 rect = float2(.7,.4);
+    float d= sdBox(uv,rect)-0.2;
+     float3 col = (d>0.0) ? float3(0.9,0.6,0.3) : float3(0.65,0.85,1.0);
+    col *= 1.0 - exp2(-20.0*abs(d));
+	col *= 0.8 + 0.2*cos(120.0*abs(d)+time*50);
+	col = lerp( col, float3(1.0,1.0,1.0), 1.0-smoothstep(0.0,0.01,abs(d)) );
+    float alpha = 1.0 - smoothstep(0.0, 0.9, d);
+    return float4(col, alpha);
+
 }

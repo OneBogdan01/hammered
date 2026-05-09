@@ -8,10 +8,7 @@ struct RendererHandle {
     SDL_GPUDevice* gpu_device{nullptr};
 
 };
-struct PositionColorVertex {
-    float x, y, z;
-    Uint8 r, g, b, a;
-};
+
 inline SDL_GPUShader* LoadShader(SDL_GPUDevice* device, const char* shaderFilename, Uint32 samplerCount,
                           Uint32 uniformBufferCount, Uint32 storageBufferCount,
                           Uint32 storageTextureCount) {
