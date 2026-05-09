@@ -6,6 +6,7 @@
 namespace hm {
 struct RendererHandle {
     SDL_GPUDevice* gpu_device{nullptr};
+
 };
 struct PositionColorVertex {
     float x, y, z;

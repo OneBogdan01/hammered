@@ -12,7 +12,7 @@ void hm_setup(hm::App& app) {
     using namespace hm;
 
     app.world().set<WindowConfig>({.title = "Rectangle UI", .width = 640, .height = 320});
-    app.add_plugin<WindowPlugin>().add_plugin<AlloyUi>();
+    app.add_plugin<WindowPlugin>().add_plugin<AlloyUiPlugin>();
 
     app.add_systems(Schedule::Startup, [](App& a) {
         const auto* gpu_device = a.world().try_get<RendererHandle>();

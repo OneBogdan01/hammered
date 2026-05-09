@@ -31,8 +31,6 @@ void WindowPlugin::build(App& app) {
 
     app.add_systems(Schedule::Shutdown, [](App& a) {
         auto& world = a.world();
-        if (!world.has<WindowHandle>())
-            return;
 
         auto& handle = world.ensure<WindowHandle>();
         if (handle.window)

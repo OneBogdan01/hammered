@@ -4,7 +4,7 @@
 
 namespace hm {
 
-class AlloyUi : public Plugin {
+class AlloyUiPlugin : public Plugin {
 public:
     HM_PLUGIN(AlloyUI)
     void build(App& app) override;
