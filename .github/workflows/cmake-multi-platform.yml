@@ -1,8 +1,8 @@
+## I no longer can upload to web in the current version
 name: Build & Deploy Web to itch.io
 
 on:
-  push:
-    branches: [main]
+
   workflow_dispatch:
 
 jobs:
