@@ -1,11 +1,11 @@
 ﻿#pragma once
 #include "plugin.hpp"
+#include "SDL3/SDL_rect.h"
+namespace hm::alloy  {
 
-
-namespace hm {
 
 class AlloyUiPlugin : public Plugin {
-public:
+  public:
     HM_PLUGIN(AlloyUI)
     void build(App& app) override;
 };

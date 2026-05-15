@@ -6,7 +6,7 @@
 #include <SDL3/SDL.h>
 #include <cassert>
 
-void hm::AlloyUiPlugin::build(App& app) {
+void hm::alloy ::AlloyUiPlugin::build(App& app) {
     app.add_systems(Schedule::Startup, [](App& a) {
         auto* gpu_device = SDL_CreateGPUDevice(
             SDL_GPU_SHADERFORMAT_SPIRV | SDL_GPU_SHADERFORMAT_DXIL | SDL_GPU_SHADERFORMAT_MSL, true,

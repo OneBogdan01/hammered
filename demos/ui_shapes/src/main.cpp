@@ -7,14 +7,14 @@
 
 static SDL_GPUGraphicsPipeline* pipeline;
 static SDL_GPUBuffer* vertex_buffer;
-struct PositionColorVertex {
+struct Vertex {
     float x, y, z;
 };
 void hm_setup(hm::App& app) {
     using namespace hm;
 
     app.world().set<WindowConfig>({.title = "Rectangle UI", .width = 640, .height = 320});
-    app.add_plugin<WindowPlugin>().add_plugin<AlloyUiPlugin>();
+    app.add_plugin<WindowPlugin>().add_plugin<alloy::AlloyUiPlugin>();
 
     app.add_systems(Schedule::Startup, [](App& a) {
         const auto* gpu_device = a.world().try_get<RendererHandle>();
@@ -41,7 +41,7 @@ void hm_setup(hm::App& app) {
             return;
         }
         SDL_GPUVertexBufferDescription buffer_desc{.slot = 0,
-                                                   .pitch = sizeof(PositionColorVertex),
+                                                   .pitch = sizeof(Vertex),
                                                    .input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX,
                                                    .instance_step_rate = 0};
         SDL_GPUColorTargetDescription target_desc{
@@ -90,20 +90,20 @@ void hm_setup(hm::App& app) {
 
         // Create the vertex buffer
         SDL_GPUBufferCreateInfo buffer_create_info{.usage = SDL_GPU_BUFFERUSAGE_VERTEX,
-                                                   .size = sizeof(PositionColorVertex) * 3};
+                                                   .size = sizeof(Vertex) * 3};
         vertex_buffer = SDL_CreateGPUBuffer(gpu_device->gpu_device, &buffer_create_info);
 
         // To get data into the vertex buffer, we have to use a transfer buffer
         SDL_GPUTransferBufferCreateInfo buffer_info{.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-                                                    .size = sizeof(PositionColorVertex) * 3};
+                                                    .size = sizeof(Vertex) * 3};
         auto* transferBuffer = SDL_CreateGPUTransferBuffer(gpu_device->gpu_device, &buffer_info);
 
-        PositionColorVertex* transferData = static_cast<PositionColorVertex*>(
+        Vertex* transferData = static_cast<Vertex*>(
             SDL_MapGPUTransferBuffer(gpu_device->gpu_device, transferBuffer, false));
 
-        transferData[0] = PositionColorVertex{-1, 1, 0};
-        transferData[1] = PositionColorVertex{-1, -3, 0};
-        transferData[2] = PositionColorVertex{3, 1, 0};
+        transferData[0] = Vertex{-1, 1, 0};
+        transferData[1] = Vertex{-1, -3, 0};
+        transferData[2] = Vertex{3, 1, 0};
 
         SDL_UnmapGPUTransferBuffer(gpu_device->gpu_device, transferBuffer);
 
@@ -114,7 +114,7 @@ void hm_setup(hm::App& app) {
         SDL_GPUTransferBufferLocation buffer_location{.transfer_buffer = transferBuffer,
                                                       .offset = 0};
         SDL_GPUBufferRegion buffer_region{
-            .buffer = vertex_buffer, .offset = 0, .size = sizeof(PositionColorVertex) * 3};
+            .buffer = vertex_buffer, .offset = 0, .size = sizeof(Vertex) * 3};
         SDL_UploadToGPUBuffer(copyPass, &buffer_location, &buffer_region, false);
 
         SDL_EndGPUCopyPass(copyPass);

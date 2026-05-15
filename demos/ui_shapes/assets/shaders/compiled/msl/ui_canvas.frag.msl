@@ -17,10 +17,12 @@ struct main0_out
 fragment main0_out main0(constant type_Frame& Frame [[buffer(0)]], float4 gl_FragCoord [[position]])
 {
     main0_out out = {};
-    float2 _51 = abs(((gl_FragCoord.xy * 2.0) - Frame.res) / float2(Frame.res.y)) - float2(0.20000000298023223876953125, 0.89999997615814208984375);
-    float _59 = (length(precise::max(_51, float2(0.0))) + precise::min(precise::max(_51.x, _51.y), 0.0)) - 0.20000000298023223876953125;
-    float _63 = abs(_59);
-    out.out_var_SV_Target = float4(mix((select(float3(0.300000011920928955078125, 0.5, 0.60000002384185791015625), float3(1.0, 0.0, 0.20000000298023223876953125), bool3(_59 > 0.0)) * (1.0 - exp2((-20.0) * _63))) * (0.89999997615814208984375 + cos((120.0 * _63) + Frame.time)), float3(0.0, 0.0, 0.89999997615814208984375), float3(1.0 - smoothstep(0.0, 0.00999999977648258209228515625, _63))), 1.0) * (1.0 - smoothstep(0.0, 0.89999997615814208984375, _59));
+    float2 _58 = ((gl_FragCoord.xy * 2.0) - Frame.res) / float2(Frame.res.y);
+    float2 _60 = abs(_58) - float2(0.20000000298023223876953125, 0.5);
+    float2 _77 = _58 + float2(2.099999904632568359375, 0.60000002384185791015625);
+    float _86 = precise::min(precise::min(precise::min((length(precise::max(_60, float2(0.0))) + precise::min(precise::max(_60.x, _60.y), 0.0)) - 0.20000000298023223876953125, length(_58 - float2(-1.0, 0.5)) - 0.5), length(_58 - float2(1.0, 0.5)) - 0.5), length(_77 - (float2(2.5, 0.5) * precise::min(1.0, precise::max(0.0, dot(_77, float2(2.5, 0.5)) * 0.15384615957736968994140625)))) - 0.100000001490116119384765625);
+    float _90 = abs(_86);
+    out.out_var_SV_Target = float4(mix((select(float3(0.300000011920928955078125, 0.5, 0.60000002384185791015625), float3(1.0, 0.0, 0.20000000298023223876953125), bool3(_86 > 0.0)) * (1.0 - exp2((-20.0) * _90))) * (0.89999997615814208984375 + cos((120.0 * _90) + Frame.time)), float3(0.0, 0.0, 0.89999997615814208984375), float3(1.0 - smoothstep(0.0, 0.00999999977648258209228515625, _90))), 1.0) * (1.0 - smoothstep(0.0, 0.89999997615814208984375, _86));
     return out;
 }
 

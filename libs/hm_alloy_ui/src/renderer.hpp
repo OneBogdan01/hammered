@@ -1,17 +1,17 @@
 ﻿#pragma once
 
-#include "SDL3/SDL_gpu.h"
-#include "SDL3/SDL_log.h"
-#include "SDL3/SDL_filesystem.h"
+#include <SDL3/SDL_gpu.h>
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_filesystem.h>
+// TODO move to a separate module
 namespace hm {
 struct RendererHandle {
     SDL_GPUDevice* gpu_device{nullptr};
-
 };
 
-inline SDL_GPUShader* LoadShader(SDL_GPUDevice* device, const char* shaderFilename, Uint32 samplerCount,
-                          Uint32 uniformBufferCount, Uint32 storageBufferCount,
-                          Uint32 storageTextureCount) {
+inline SDL_GPUShader* LoadShader(SDL_GPUDevice* device, const char* shaderFilename,
+                                 Uint32 samplerCount, Uint32 uniformBufferCount,
+                                 Uint32 storageBufferCount, Uint32 storageTextureCount) {
     // Auto-detect the shader stage from the file name for convenience
     SDL_GPUShaderStage stage;
     if (SDL_strstr(shaderFilename, ".vert")) {

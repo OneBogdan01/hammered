@@ -36,8 +36,9 @@ float4 main(float4 screenSpace : SV_Position ) : SV_Target
   	float2 circlePos = float2(1., 0.5);
   	float2 circlePos2 = float2(-1., 0.5);
 	d = min(d,sdCircle(uv - circlePos2,.5));
-		d = min(d,sdCircle(uv - circlePos,.5));
-     float3 col = (d>0.0) ? float3(1.,0.0,0.2) : float3(0.3,0.5,.6);
+	d = min(d,sdCircle(uv - circlePos,.5));
+	d = min(d,sdLine(uv+0.6,circlePos2-0.5,circlePos,.1));	
+    float3 col = (d>0.0) ? float3(1.,0.0,0.2) : float3(0.3,0.5,.6);
     col *= 1.0 - exp2(-20.0*abs(d));
 	col *= 0.9 + 1.0*cos(120.0*abs(d)+time);
 	col = lerp( col, float3(0.0,0.0,0.9), 1.0-smoothstep(0.0,0.01,abs(d)) );
