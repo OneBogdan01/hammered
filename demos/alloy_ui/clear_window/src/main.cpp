@@ -6,7 +6,7 @@
 #include "window.hpp"
 #include <cmath>
 void hm_setup(hm::App& app) {
-    app.add_plugin<hm::WindowPlugin>().add_plugin<hm::AlloyUiPlugin>();
+    app.add_plugin<hm::WindowPlugin>().add_plugin<hm::alloy::AlloyUiPlugin>();
 
     app.world().set(hm::WindowConfig{.title = "Hello Window", .width = 400, .height = 400});
 

@@ -1,10 +1,13 @@
-file(GLOB demo_dirs RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
-foreach(demo ${demo_dirs})
-    set(demo_dir ${CMAKE_CURRENT_SOURCE_DIR}/${demo})
-    
-    if(IS_DIRECTORY ${demo_dir} AND EXISTS ${demo_dir}/src/main.cpp)
-        message(STATUS "Adding demo: ${demo}")
-        
+file(GLOB_RECURSE demo_mains CONFIGURE_DEPENDS
+        "${CMAKE_CURRENT_SOURCE_DIR}/*/main.cpp"
+)
+foreach(main_cpp ${demo_mains})
+    get_filename_component(src_dir  ${main_cpp} DIRECTORY)
+    get_filename_component(demo_dir ${src_dir}  DIRECTORY)
+    file(RELATIVE_PATH demo_rel ${CMAKE_CURRENT_SOURCE_DIR} ${demo_dir})
+    string(REPLACE "/" "_" demo ${demo_rel})
+
+    message(STATUS "Adding demo: ${demo}")
         file(GLOB_RECURSE DEMO_SOURCES CONFIGURE_DEPENDS
             ${demo_dir}/*.cpp
             ${demo_dir}/*.hpp
@@ -50,5 +53,4 @@ foreach(demo ${demo_dirs})
             )
             add_dependencies(demo_${demo} demo_${demo}_copy_assets)
         endif()
-    endif()
 endforeach()
