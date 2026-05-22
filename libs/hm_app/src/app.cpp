@@ -1,13 +1,15 @@
 #include "app.hpp"
 
-#include <algorithm>
+#include <print>
+#include <hm/version.hpp>
 
 void hm::App::startup() const {
-    for (auto& fn : m_startup_fn) fn();
-
+    std::println("Version of the engine is: {}.{}.{}", version_major, version_minor, version_patch);
+    for (auto& fn : m_startup_fn)
+        fn();
 }
 void hm::App::update() const {
-m_world.progress();
+    m_world.progress();
 }
 void hm::App::shutdown() {
     while (!m_shutdown_fn.empty()) {
@@ -16,4 +18,3 @@ void hm::App::shutdown() {
     }
     m_world.quit();
 }
-

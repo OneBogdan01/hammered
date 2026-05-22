@@ -1,0 +1,6 @@
+﻿#pragma once
+namespace hm {
+    constexpr int version_major = @HM_VERSION_MAJOR@;
+    constexpr int version_minor = @HM_VERSION_MINOR@;
+    constexpr int version_patch = @HM_VERSION_PATCH@;
+}
