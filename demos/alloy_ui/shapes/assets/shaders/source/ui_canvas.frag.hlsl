@@ -4,6 +4,15 @@ cbuffer Frame: register(b0, space3)
     float2 res;
     float time;
 };
+struct UICommand {
+    float4 data;      // packed shape data
+    uint   color;     // packed rgba8
+    float  shadow_strength;
+    uint   type;
+    uint   temp;
+};
+
+StructuredBuffer<UICommand> commands : register(t0, space2);
 float sdLine(float2 p, float2 a, float2 b, float r)
 {
 float2 line_vec=float2(b-a);

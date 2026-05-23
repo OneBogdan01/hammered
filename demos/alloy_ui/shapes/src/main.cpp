@@ -1,4 +1,5 @@
-﻿#include "prelude.hpp"
+﻿#include "command_buffer_ui.hpp"
+#include "prelude.hpp"
 
 #include "entry.hpp"
 #include "hm_alloy_ui.hpp"
@@ -21,7 +22,6 @@ void hm_setup(hm::App& app) {
         if (gpu_device == nullptr) {
             return;
         }
-
         // Create the shaders
         SDL_GPUShader* vertexShader =
             hm::LoadShader(gpu_device->gpu_device, "ui_canvas.vert", 0, 0, 0, 0);
@@ -31,7 +31,7 @@ void hm_setup(hm::App& app) {
         }
 
         SDL_GPUShader* fragmentShader =
-            hm::LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 0, 0);
+            hm::LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 1, 0);
         if (fragmentShader == NULL) {
             SDL_Log("Failed to create fragment shader!");
             return;
@@ -47,16 +47,18 @@ void hm_setup(hm::App& app) {
         SDL_GPUColorTargetDescription target_desc{
             .format =
                 SDL_GetGPUSwapchainTextureFormat(gpu_device->gpu_device, window_handle->window),
-            .blend_state = SDL_GPUColorTargetBlendState{
-        .src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA,
-        .dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-        .color_blend_op        = SDL_GPU_BLENDOP_ADD,
-        .src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE,
-        .dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-        .alpha_blend_op        = SDL_GPU_BLENDOP_ADD,
-        .color_write_mask      = 0xF,
-        .enable_blend          = true,
-    },};
+            .blend_state =
+                SDL_GPUColorTargetBlendState{
+                    .src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA,
+                    .dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+                    .color_blend_op = SDL_GPU_BLENDOP_ADD,
+                    .src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE,
+                    .dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+                    .alpha_blend_op = SDL_GPU_BLENDOP_ADD,
+                    .color_write_mask = 0xF,
+                    .enable_blend = true,
+                },
+        };
         SDL_GPUVertexAttribute vertex_attrs[] = {{.location = 0,
                                                   .buffer_slot = 0,
                                                   .format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3,
@@ -92,7 +94,20 @@ void hm_setup(hm::App& app) {
         SDL_GPUBufferCreateInfo buffer_create_info{.usage = SDL_GPU_BUFFERUSAGE_VERTEX,
                                                    .size = sizeof(Vertex) * 3};
         vertex_buffer = SDL_CreateGPUBuffer(gpu_device->gpu_device, &buffer_create_info);
-
+        // prepare the buffer for UI
+        {
+            auto& ui_buffers{a.world().ensure<alloy::UIRenderResources>()};
+            SDL_GPUTransferBufferCreateInfo ui_transfer_info{
+                .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
+                .size = alloy::MAX_NUMBER_UI_SHAPES * sizeof(alloy::UICommand)};
+            ui_buffers.transfer_buffer =
+                SDL_CreateGPUTransferBuffer(gpu_device->gpu_device, &ui_transfer_info);
+            SDL_GPUBufferCreateInfo ui_buffer_info{
+                .usage = SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ,
+                .size = alloy::MAX_NUMBER_UI_SHAPES * sizeof(alloy::UICommand)};
+            ui_buffers.storage_buffer =
+                SDL_CreateGPUBuffer(gpu_device->gpu_device, &ui_buffer_info);
+        }
         // To get data into the vertex buffer, we have to use a transfer buffer
         SDL_GPUTransferBufferCreateInfo buffer_info{.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
                                                     .size = sizeof(Vertex) * 3};
@@ -120,6 +135,13 @@ void hm_setup(hm::App& app) {
         SDL_EndGPUCopyPass(copyPass);
         SDL_SubmitGPUCommandBuffer(uploadCmdBuf);
         SDL_ReleaseGPUTransferBuffer(gpu_device->gpu_device, transferBuffer);
+
+        // Some interesting shapes being added to the buffer
+        auto& cmd{a.world().get_mut<alloy::UICommandBuffer>()};
+
+        cmd.add_circle(alloy::Circle{{0.0f, 0.0f}, 1.0f}, alloy::colors::WHITE);
+        cmd.add_rect(alloy::Rect{{0.0f, 0.0f, 10.0f, 5.0f}}, alloy::colors::RED);
+        cmd.add_line(alloy::Line{{0.0f, 0.0f}, {10.0f, 10.0f}}, alloy::colors::GRAY);
     });
     app.add_systems(Schedule::Update, [](App& a) {
         const auto& world = a.world();
@@ -134,27 +156,59 @@ void hm_setup(hm::App& app) {
             return;
         }
 
-        SDL_GPUTexture* swapchainTexture;
-        if (!SDL_WaitAndAcquireGPUSwapchainTexture(cmdbuf, window_handle->window, &swapchainTexture,
-                                                   nullptr, nullptr)) {
+        SDL_GPUTexture* swapchain_texture;
+        if (!SDL_WaitAndAcquireGPUSwapchainTexture(cmdbuf, window_handle->window,
+                                                   &swapchain_texture, nullptr, nullptr)) {
             SDL_Log("WaitAndAcquireGPUSwapchainTexture failed: %s", SDL_GetError());
             return;
         }
 
-        if (swapchainTexture != nullptr) {
-            SDL_GPUColorTargetInfo colorTargetInfo = {nullptr};
-            colorTargetInfo.texture = swapchainTexture;
+        if (swapchain_texture != nullptr) {
+            // ui update!
+            auto& ui_render{a.world().get<alloy::UIRenderResources>()};
             const auto time = SDL_GetTicks() / 1000.f;
-            // const auto r = static_cast<float>((std::sin(time) + 1) / 2.0);
-            // const auto g = static_cast<float>((std::sin(time / 2) + 1) / 2.0);
-            // const auto b = static_cast<float>((std::sin(time * 2) + 1) / 2.0);
-            colorTargetInfo.clear_color = SDL_FColor{0.0f, 0.0f, 0.0f, 1.0f};
-            colorTargetInfo.load_op = SDL_GPU_LOADOP_CLEAR;
-            colorTargetInfo.store_op = SDL_GPU_STOREOP_STORE;
+            const auto r = static_cast<u8>(((std::sin(time) + 1) / 2.0) / 255);
+            const auto g = static_cast<u8>(((std::sin(time / 2) + 1) / 2.0) / 255);
+            const auto b = static_cast<u8>(((std::sin(time * 2) + 1) / 2.0) / 255);
+            {
+                // Build sprite instance transfer
+                auto* ptr = static_cast<alloy::UICommand*>(SDL_MapGPUTransferBuffer(
+                    gpu_device->gpu_device, ui_render.transfer_buffer, true));
 
-            SDL_GPURenderPass* renderPass =
-                SDL_BeginGPURenderPass(cmdbuf, &colorTargetInfo, 1, nullptr);
-            SDL_BindGPUGraphicsPipeline(renderPass, pipeline);
+                auto& commands{a.world().get_mut<alloy::UICommandBuffer>().get_commands()};
+                const u32 count = std::min(commands.size(), alloy::MAX_NUMBER_UI_SHAPES);
+
+                SDL_memcpy(ptr, commands.data(), count * sizeof(alloy::UICommand));
+
+                SDL_UnmapGPUTransferBuffer(gpu_device->gpu_device, ui_render.transfer_buffer);
+
+                // Upload data
+                SDL_GPUCopyPass* copyPass = SDL_BeginGPUCopyPass(cmdbuf);
+                const SDL_GPUTransferBufferLocation src{
+                    .transfer_buffer = ui_render.transfer_buffer,
+                    .offset = 0,
+                };
+
+                const SDL_GPUBufferRegion dst{
+                    .buffer = ui_render.storage_buffer,
+                    .offset = 0,
+                    .size = count * sizeof(alloy::UICommand),
+                };
+
+                SDL_UploadToGPUBuffer(copyPass, &src, &dst, true);
+                SDL_EndGPUCopyPass(copyPass);
+            }
+
+            SDL_GPUColorTargetInfo color_target_info = {nullptr};
+            color_target_info.texture = swapchain_texture;
+
+            color_target_info.clear_color = SDL_FColor{0.0f, 0.0f, 0.0f, 1.0f};
+            color_target_info.load_op = SDL_GPU_LOADOP_CLEAR;
+            color_target_info.store_op = SDL_GPU_STOREOP_STORE;
+
+            SDL_GPURenderPass* render_pass =
+                SDL_BeginGPURenderPass(cmdbuf, &color_target_info, 1, nullptr);
+            SDL_BindGPUGraphicsPipeline(render_pass, pipeline);
             struct WindowSize {
                 f32 w;
                 f32 h;
@@ -165,12 +219,14 @@ void hm_setup(hm::App& app) {
             window_size = {.w = static_cast<float>(w), .h = static_cast<float>(h), .t = time};
 
             SDL_PushGPUFragmentUniformData(cmdbuf, 0, &window_size, sizeof(window_size));
-
+            // takes an array
+            SDL_GPUBuffer* storage_buffers[] = {ui_render.storage_buffer};
+            SDL_BindGPUFragmentStorageBuffers(render_pass, 0, storage_buffers, 1);
             const SDL_GPUBufferBinding binding{.buffer = vertex_buffer, .offset = 0};
-            SDL_BindGPUVertexBuffers(renderPass, 0, &binding, 1);
-            SDL_DrawGPUPrimitives(renderPass, 3, 1, 0, 0);
+            SDL_BindGPUVertexBuffers(render_pass, 0, &binding, 1);
+            SDL_DrawGPUPrimitives(render_pass, 3, 1, 0, 0);
 
-            SDL_EndGPURenderPass(renderPass);
+            SDL_EndGPURenderPass(render_pass);
         }
 
         SDL_SubmitGPUCommandBuffer(cmdbuf);

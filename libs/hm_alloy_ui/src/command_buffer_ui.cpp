@@ -1,15 +1,39 @@
 ﻿
 #include "command_buffer_ui.hpp"
 
-void hm::alloy::UICommandBuffer::set_common_values(hm::alloy::uColor32 color,
-                                                   hm::alloy::UICommand& cmd) {
-    cmd.color = color;
-    cmd.type = ShapeType::Circle;
+hm::alloy::UICommand::UICommand(const Circle circle, const uColor32 color) {
+    this->circle = circle;
+    this->color = color;
+    this->type = ShapeType::Circle;
 }
-hm::alloy::UICommandBuffer& hm::alloy::UICommandBuffer::add_circle(Circle circle, uColor32 color) {
-    UICommand cmd{};
-    set_common_values(color, cmd);
-    cmd.circle = circle;
+hm::alloy::UICommand::UICommand(const Rect rect, const uColor32 color) {
+    this->rect = rect;
+    this->color = color;
+    this->type = ShapeType::Rect;
+}
+hm::alloy::UICommand::UICommand(const Line line, const uColor32 color) {
+    this->line = line;
+    this->color = color;
+    this->type = ShapeType::Line;
+}
+hm::alloy::UICommandBuffer& hm::alloy::UICommandBuffer::add_circle(const Circle circle,
+                                                                   const uColor32 color) {
+    const UICommand cmd{circle, color};
     m_commands.push_back(cmd);
     return *this;
+}
+hm::alloy::UICommandBuffer& hm::alloy::UICommandBuffer::add_rect(const Rect rect,
+                                                                 const uColor32 color) {
+    const UICommand cmd{rect, color};
+    m_commands.push_back(cmd);
+    return *this;
+}
+hm::alloy::UICommandBuffer& hm::alloy::UICommandBuffer::add_line(const Line line,
+                                                                 const uColor32 color) {
+    const UICommand cmd{line, color};
+    m_commands.push_back(cmd);
+    return *this;
+}
+hm::Vec<hm::alloy::UICommand>& hm::alloy::UICommandBuffer::get_commands() {
+    return m_commands;
 }

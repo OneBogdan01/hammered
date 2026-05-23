@@ -4,14 +4,19 @@
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_filesystem.h>
 // TODO move to a separate module
-namespace hm {
+namespace hm::alloy {
+constexpr u64 MAX_NUMBER_UI_SHAPES{1'048'576u};
 struct RendererHandle {
     SDL_GPUDevice* gpu_device{nullptr};
 };
-
+struct UIRenderResources {
+    SDL_GPUTransferBuffer* transfer_buffer;
+    SDL_GPUBuffer* storage_buffer;
+};
 inline SDL_GPUShader* LoadShader(SDL_GPUDevice* device, const char* shaderFilename,
-                                 Uint32 samplerCount, Uint32 uniformBufferCount,
-                                 Uint32 storageBufferCount, Uint32 storageTextureCount) {
+                                 const Uint32 samplerCount, const Uint32 uniformBufferCount,
+                                 const Uint32 storageBufferCount,
+                                 const Uint32 storageTextureCount) {
     // Auto-detect the shader stage from the file name for convenience
     SDL_GPUShaderStage stage;
     if (SDL_strstr(shaderFilename, ".vert")) {
@@ -76,4 +81,4 @@ inline SDL_GPUShader* LoadShader(SDL_GPUDevice* device, const char* shaderFilena
     return shader;
 }
 
-} // namespace hm
+} // namespace hm::alloy

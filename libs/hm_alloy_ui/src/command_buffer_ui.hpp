@@ -20,6 +20,9 @@ struct Line {
 };
 // used for all shapes for now
 struct alignas(16) UICommand {
+    UICommand(Circle circle, uColor32 color);
+    UICommand(Rect circle, uColor32 color);
+    UICommand(Line line, uColor32 color);
     // shape specific
     union {
         Rect rect{};
@@ -53,10 +56,9 @@ class UICommandBuffer {
     UICommandBuffer& add_rect(Rect rect, uColor32 color);
     UICommandBuffer& add_line(Line line, uColor32 color);
 
-  private:
-    void set_common_values(hm::alloy::uColor32 color, hm::alloy::UICommand& cmd);
+    Vec<UICommand>& get_commands();
 
+  private:
     Vec<UICommand> m_commands;
 };
-
 } // namespace hm::alloy
