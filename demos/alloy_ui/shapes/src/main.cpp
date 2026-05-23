@@ -6,6 +6,8 @@
 #include "renderer.hpp"
 #include "window.hpp"
 
+#include <algorithm>
+
 static SDL_GPUGraphicsPipeline* pipeline;
 static SDL_GPUBuffer* vertex_buffer;
 struct Vertex {
@@ -15,7 +17,7 @@ void hm_setup(hm::App& app) {
     using namespace hm;
     using namespace hm::alloy;
 
-    app.world().set<WindowConfig>({.title = "Rectangle UI", .width = 640, .height = 320});
+    app.world().set<WindowConfig>({.title = "Alloy Buffered Shapes", .width = 640, .height = 320});
     app.add_plugin<WindowPlugin>().add_plugin<AlloyUiPlugin>();
 
     app.add_systems(Schedule::Startup, [](App& a) {
@@ -50,14 +52,7 @@ void hm_setup(hm::App& app) {
                 SDL_GetGPUSwapchainTextureFormat(gpu_device->gpu_device, window_handle->window),
             .blend_state =
                 SDL_GPUColorTargetBlendState{
-                    .src_color_blendfactor = SDL_GPU_BLENDFACTOR_SRC_ALPHA,
-                    .dst_color_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-                    .color_blend_op = SDL_GPU_BLENDOP_ADD,
-                    .src_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE,
-                    .dst_alpha_blendfactor = SDL_GPU_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
-                    .alpha_blend_op = SDL_GPU_BLENDOP_ADD,
-                    .color_write_mask = 0xF,
-                    .enable_blend = true,
+                    .enable_blend = false,
                 },
         };
         SDL_GPUVertexAttribute vertex_attrs[] = {{.location = 0,
@@ -140,9 +135,11 @@ void hm_setup(hm::App& app) {
         // Some interesting shapes being added to the buffer
         auto& cmd{a.world().get_mut<UICommandBuffer>()};
 
-        cmd.add_circle(Circle{{0.0f, 0.0f}, 1.0f}, colors::WHITE);
-        cmd.add_rect(Rect{{0.0f, 0.0f, 10.0f, 5.0f}}, colors::RED);
-        cmd.add_line(Line{{0.0f, 0.0f}, {10.0f, 10.0f}}, colors::GRAY);
+        cmd.add_circle(Circle{{300.0f, 50.0f}, 50.0f}, colors::u8::WHITE);
+        cmd.add_rect(Rect{{200.0f, 50.0f, 400.0f, 150.0f}}, colors::u8::RED);
+        cmd.add_line(Line{{50.0f, 200.0f}, {500.0f, 250.0f}}, colors::u8::CYAN);
+        cmd.add_circle(Circle{{300.0f, 50.0f}, 50.0f}, colors::u8::WHITE);
+
     });
     app.add_systems(Schedule::Update, [](App& a) {
         const auto& world = a.world();
@@ -167,16 +164,39 @@ void hm_setup(hm::App& app) {
         if (swapchain_texture != nullptr) {
             // ui update!
             auto& ui_render{a.world().get<UIRenderResources>()};
+            auto& commands{a.world().get_mut<UICommandBuffer>().get_commands()};
             const auto time = SDL_GetTicks() / 1000.f;
-            const auto r = static_cast<u8>(((std::sin(time) + 1) / 2.0) / 255);
-            const auto g = static_cast<u8>(((std::sin(time / 2) + 1) / 2.0) / 255);
-            const auto b = static_cast<u8>(((std::sin(time * 2) + 1) / 2.0) / 255);
+
+            for (auto i=0; i<commands.size(); i++) {
+                auto& shape{commands[i]};
+                const auto r = static_cast<u8>(((std::sin(time+i) + 1.0f) / 2.0) * 255);
+            const auto g = static_cast<u8>(((std::sin(time / 2) + 1) / 2.0) * 255);
+            const auto b = static_cast<u8>(((std::sin(time * 2) + 1) / 2.0) * 255);
+                switch (shape.type) {
+
+                case ShapeType::Circle:
+                    shape.color = uColor32{r, g, b, 255};
+                    shape.circle.radius = (std::sin(time * 2 + 29) + 1) / 2.0f * 10.0f + 10.0f;
+                    shape.circle.center.x = (std::cos(time * i) + 1) / 2.0f * 200.0f+100*i;
+                    shape.circle.center.y = (std::sin(time * i) + 1) / 2.0f * 200.0f+20*i;
+                    break;
+                case ShapeType::Line:
+                    shape.line.a.x = shape.line.b.x + std::cos(time) * 10;
+                    shape.line.a.y = shape.line.b.y + std::sin(time*2) * 30;
+                    break;
+                case ShapeType::Rect:
+                    shape.rect.rect.w = (std::sin(time ) + 1) / 2.0 * 400;
+                    shape.rect.rect.h = (std::cos(time * 3) + 1) / 2.0f * 150;
+                    shape.color.a = std::clamp<u8>((std::cos(time * 5) + 1) / 2.0f * 255u,150,255u);
+
+                    break;
+                }
+            }
             {
                 // Build sprite instance transfer
                 auto* ptr = static_cast<UICommand*>(SDL_MapGPUTransferBuffer(
                     gpu_device->gpu_device, ui_render.transfer_buffer, true));
 
-                auto& commands{a.world().get_mut<UICommandBuffer>().get_commands()};
                 const u32 count = std::min(commands.size(), MAX_NUMBER_UI_SHAPES);
 
                 SDL_memcpy(ptr, commands.data(), count * sizeof(UICommand));
@@ -214,10 +234,17 @@ void hm_setup(hm::App& app) {
                 f32 w;
                 f32 h;
                 f32 t;
+                u32 count;
+                fColor128 color;
             } window_size;
             int w, h;
             SDL_GetWindowSizeInPixels(window_handle->window, &w, &h);
-            window_size = {.w = static_cast<float>(w), .h = static_cast<float>(h), .t = time};
+
+            window_size = {.w = static_cast<float>(w),
+                           .h = static_cast<float>(h),
+                           .t = time,
+                           .count = static_cast<u32>(commands.size()),
+                           .color = hm::alloy::colors::f128::GRAY};
 
             SDL_PushGPUFragmentUniformData(cmdbuf, 0, &window_size, sizeof(window_size));
             // takes an array

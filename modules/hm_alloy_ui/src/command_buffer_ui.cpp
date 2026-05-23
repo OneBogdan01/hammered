@@ -1,21 +1,14 @@
 ﻿
 #include "command_buffer_ui.hpp"
 
-hm::alloy::UICommand::UICommand(const Circle circle, const uColor32 color) {
-    this->circle = circle;
-    this->color = color;
-    this->type = ShapeType::Circle;
-}
-hm::alloy::UICommand::UICommand(const Rect rect, const uColor32 color) {
-    this->rect = rect;
-    this->color = color;
-    this->type = ShapeType::Rect;
-}
-hm::alloy::UICommand::UICommand(const Line line, const uColor32 color) {
-    this->line = line;
-    this->color = color;
-    this->type = ShapeType::Line;
-}
+hm::alloy::UICommand::UICommand(Circle circle, uColor32 col)
+    : circle{circle}, color{col}, type{ShapeType::Circle} {}
+
+hm::alloy::UICommand::UICommand(Rect rect, uColor32 col)
+    : rect{rect}, color{col}, type{ShapeType::Rect} {}
+
+hm::alloy::UICommand::UICommand(Line line, uColor32 col)
+    : line{line}, color{col}, type{ShapeType::Line} {}
 hm::alloy::UICommandBuffer& hm::alloy::UICommandBuffer::add_circle(const Circle circle,
                                                                    const uColor32 color) {
     const UICommand cmd{circle, color};

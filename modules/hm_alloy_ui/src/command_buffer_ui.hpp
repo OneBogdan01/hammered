@@ -21,11 +21,11 @@ struct Line {
 // used for all shapes for now
 struct alignas(16) UICommand {
     UICommand(Circle circle, uColor32 color);
-    UICommand(Rect circle, uColor32 color);
+    UICommand(Rect rect, uColor32 color);
     UICommand(Line line, uColor32 color);
     // shape specific
     union {
-        Rect rect{};
+        Rect rect;
         Line line;
         Circle circle;
     };
@@ -38,14 +38,14 @@ struct alignas(16) UICommand {
     // common to all shapes
 
     // 4 bytes
-    uColor32 color{colors::WHITE};
+    uColor32 color{colors::u8::WHITE};
     // 4 bytes
     f32 shadow_strength = 0.50f;
     ShapeType type = ShapeType::Circle;
     // 4 bytes
     u16 primitive_group = 0u;
     u8 shadow_distance = 2u;
-    u8 padding;
+    u8 padding{};
     // 4 bytes
     //  TODO add clipping rect
 };
