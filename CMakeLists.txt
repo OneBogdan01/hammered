@@ -14,7 +14,7 @@ option(HM_BUILD_DEMOS "Build demos" ON)
 include(cmake/CPM.cmake)
 include(cmake/utility.cmake)
 
-add_subdirectory(libs)
+add_subdirectory(modules)
 
 if(HM_BUILD_DEMOS)
     add_subdirectory(demos)

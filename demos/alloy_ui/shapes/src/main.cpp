@@ -13,9 +13,10 @@ struct Vertex {
 };
 void hm_setup(hm::App& app) {
     using namespace hm;
+    using namespace hm::alloy;
 
     app.world().set<WindowConfig>({.title = "Rectangle UI", .width = 640, .height = 320});
-    app.add_plugin<WindowPlugin>().add_plugin<alloy::AlloyUiPlugin>();
+    app.add_plugin<WindowPlugin>().add_plugin<AlloyUiPlugin>();
 
     app.add_systems(Schedule::Startup, [](App& a) {
         const auto* gpu_device = a.world().try_get<RendererHandle>();
@@ -24,14 +25,14 @@ void hm_setup(hm::App& app) {
         }
         // Create the shaders
         SDL_GPUShader* vertexShader =
-            hm::LoadShader(gpu_device->gpu_device, "ui_canvas.vert", 0, 0, 0, 0);
+            LoadShader(gpu_device->gpu_device, "ui_canvas.vert", 0, 0, 0, 0);
         if (vertexShader == NULL) {
             SDL_Log("Failed to create vertex shader!");
             return;
         }
 
         SDL_GPUShader* fragmentShader =
-            hm::LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 1, 0);
+            LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 1, 0);
         if (fragmentShader == NULL) {
             SDL_Log("Failed to create fragment shader!");
             return;
@@ -96,15 +97,15 @@ void hm_setup(hm::App& app) {
         vertex_buffer = SDL_CreateGPUBuffer(gpu_device->gpu_device, &buffer_create_info);
         // prepare the buffer for UI
         {
-            auto& ui_buffers{a.world().ensure<alloy::UIRenderResources>()};
+            auto& ui_buffers{a.world().ensure<UIRenderResources>()};
             SDL_GPUTransferBufferCreateInfo ui_transfer_info{
                 .usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD,
-                .size = alloy::MAX_NUMBER_UI_SHAPES * sizeof(alloy::UICommand)};
+                .size = MAX_NUMBER_UI_SHAPES * sizeof(UICommand)};
             ui_buffers.transfer_buffer =
                 SDL_CreateGPUTransferBuffer(gpu_device->gpu_device, &ui_transfer_info);
             SDL_GPUBufferCreateInfo ui_buffer_info{
                 .usage = SDL_GPU_BUFFERUSAGE_GRAPHICS_STORAGE_READ,
-                .size = alloy::MAX_NUMBER_UI_SHAPES * sizeof(alloy::UICommand)};
+                .size = MAX_NUMBER_UI_SHAPES * sizeof(UICommand)};
             ui_buffers.storage_buffer =
                 SDL_CreateGPUBuffer(gpu_device->gpu_device, &ui_buffer_info);
         }
@@ -137,11 +138,11 @@ void hm_setup(hm::App& app) {
         SDL_ReleaseGPUTransferBuffer(gpu_device->gpu_device, transferBuffer);
 
         // Some interesting shapes being added to the buffer
-        auto& cmd{a.world().get_mut<alloy::UICommandBuffer>()};
+        auto& cmd{a.world().get_mut<UICommandBuffer>()};
 
-        cmd.add_circle(alloy::Circle{{0.0f, 0.0f}, 1.0f}, alloy::colors::WHITE);
-        cmd.add_rect(alloy::Rect{{0.0f, 0.0f, 10.0f, 5.0f}}, alloy::colors::RED);
-        cmd.add_line(alloy::Line{{0.0f, 0.0f}, {10.0f, 10.0f}}, alloy::colors::GRAY);
+        cmd.add_circle(Circle{{0.0f, 0.0f}, 1.0f}, colors::WHITE);
+        cmd.add_rect(Rect{{0.0f, 0.0f, 10.0f, 5.0f}}, colors::RED);
+        cmd.add_line(Line{{0.0f, 0.0f}, {10.0f, 10.0f}}, colors::GRAY);
     });
     app.add_systems(Schedule::Update, [](App& a) {
         const auto& world = a.world();
@@ -165,20 +166,20 @@ void hm_setup(hm::App& app) {
 
         if (swapchain_texture != nullptr) {
             // ui update!
-            auto& ui_render{a.world().get<alloy::UIRenderResources>()};
+            auto& ui_render{a.world().get<UIRenderResources>()};
             const auto time = SDL_GetTicks() / 1000.f;
             const auto r = static_cast<u8>(((std::sin(time) + 1) / 2.0) / 255);
             const auto g = static_cast<u8>(((std::sin(time / 2) + 1) / 2.0) / 255);
             const auto b = static_cast<u8>(((std::sin(time * 2) + 1) / 2.0) / 255);
             {
                 // Build sprite instance transfer
-                auto* ptr = static_cast<alloy::UICommand*>(SDL_MapGPUTransferBuffer(
+                auto* ptr = static_cast<UICommand*>(SDL_MapGPUTransferBuffer(
                     gpu_device->gpu_device, ui_render.transfer_buffer, true));
 
-                auto& commands{a.world().get_mut<alloy::UICommandBuffer>().get_commands()};
-                const u32 count = std::min(commands.size(), alloy::MAX_NUMBER_UI_SHAPES);
+                auto& commands{a.world().get_mut<UICommandBuffer>().get_commands()};
+                const u32 count = std::min(commands.size(), MAX_NUMBER_UI_SHAPES);
 
-                SDL_memcpy(ptr, commands.data(), count * sizeof(alloy::UICommand));
+                SDL_memcpy(ptr, commands.data(), count * sizeof(UICommand));
 
                 SDL_UnmapGPUTransferBuffer(gpu_device->gpu_device, ui_render.transfer_buffer);
 
@@ -192,7 +193,7 @@ void hm_setup(hm::App& app) {
                 const SDL_GPUBufferRegion dst{
                     .buffer = ui_render.storage_buffer,
                     .offset = 0,
-                    .size = count * sizeof(alloy::UICommand),
+                    .size = count * sizeof(UICommand),
                 };
 
                 SDL_UploadToGPUBuffer(copyPass, &src, &dst, true);
