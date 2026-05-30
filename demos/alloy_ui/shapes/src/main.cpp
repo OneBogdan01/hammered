@@ -17,7 +17,7 @@ void hm_setup(hm::App& app) {
     using namespace hm;
     using namespace hm::alloy;
 
-    app.world().set<WindowConfig>({.title = "Alloy Buffered Shapes", .width = 640, .height = 320});
+    app.world().set<WindowConfig>({.title = "Tiled Shapes", .width = 640, .height = 320});
     app.add_plugin<WindowPlugin>().add_plugin<AlloyUiPlugin>();
 
     app.add_systems(Schedule::Startup, [](App& a) {
@@ -41,6 +41,8 @@ void hm_setup(hm::App& app) {
         }
         const auto* window_handle = a.world().try_get<WindowHandle>();
         if (window_handle == nullptr) {
+            SDL_Log("Failed to get a window handle!");
+
             return;
         }
         SDL_GPUVertexBufferDescription buffer_desc{.slot = 0,

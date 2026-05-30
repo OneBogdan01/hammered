@@ -4,7 +4,7 @@
 #include <hm/version.hpp>
 
 void hm::App::startup() const {
-    std::println("Version of the engine is: {}.{}.{}", version_major, version_minor, version_patch);
+    std::println("hm v.{}.{}.{}", version_major, version_minor, version_patch);
     for (auto& fn : m_startup_fn)
         fn();
 }
