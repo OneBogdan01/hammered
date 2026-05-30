@@ -1,0 +1,78 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct type_Frame
+{
+    float2 res;
+    float time;
+    uint count;
+    float4 bg_color;
+};
+
+struct UICommand
+{
+    float4 data;
+    uint color;
+    float shadow_strength;
+    uint type;
+    uint temp;
+};
+
+struct type_StructuredBuffer_UICommand
+{
+    UICommand _m0[1];
+};
+
+struct main0_out
+{
+    float4 out_var_SV_Target [[color(0)]];
+};
+
+fragment main0_out main0(constant type_Frame& Frame [[buffer(0)]], const device type_StructuredBuffer_UICommand& commands [[buffer(1)]], float4 gl_FragCoord [[position]])
+{
+    main0_out out = {};
+    float4 _49;
+    _49 = Frame.bg_color;
+    float4 _50;
+    for (uint _52 = 0u; _52 < Frame.count; _49 = _50, _52++)
+    {
+        float _110;
+        if (commands._m0[_52].type == 0u)
+        {
+            _110 = length(gl_FragCoord.xy - commands._m0[_52].data.xy) - commands._m0[_52].data.z;
+        }
+        else
+        {
+            float _109;
+            if (commands._m0[_52].type == 1u)
+            {
+                float2 _80 = commands._m0[_52].data.zw - commands._m0[_52].data.xy;
+                float2 _81 = gl_FragCoord.xy - commands._m0[_52].data.xy;
+                _109 = length(_81 - (_80 * precise::min(1.0, precise::max(0.0, dot(_81, _80) / dot(_80, _80))))) - 2.0;
+            }
+            else
+            {
+                float _108;
+                if (commands._m0[_52].type == 2u)
+                {
+                    float2 _96 = commands._m0[_52].data.zw * 0.5;
+                    float2 _100 = abs(gl_FragCoord.xy - (commands._m0[_52].data.xy + _96)) - _96;
+                    _108 = length(precise::max(_100, float2(0.0))) + precise::min(precise::max(_100.x, _100.y), 0.0);
+                }
+                else
+                {
+                    _108 = 1000000000.0;
+                }
+                _109 = _108;
+            }
+            _110 = _109;
+        }
+        float _125 = float((commands._m0[_52].color >> 24u) & 255u) * 0.0039215688593685626983642578125;
+        _50 = mix(_49, float4(float(commands._m0[_52].color & 255u) * 0.0039215688593685626983642578125, float((commands._m0[_52].color >> 8u) & 255u) * 0.0039215688593685626983642578125, float((commands._m0[_52].color >> 16u) & 255u) * 0.0039215688593685626983642578125, _125), float4(fast::clamp(1.0 - _110, 0.0, 1.0) * _125));
+    }
+    out.out_var_SV_Target = _49;
+    return out;
+}
+
