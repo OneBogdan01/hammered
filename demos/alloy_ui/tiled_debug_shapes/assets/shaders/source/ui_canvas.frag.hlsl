@@ -5,6 +5,9 @@ cbuffer Frame : register(b0, space3)
     float time;
     uint count;
     float4 bg_color;
+    uint tiles_x;
+    uint tile_size;
+    uint heatmap;
 };
 struct UICommand
 {
@@ -14,8 +17,9 @@ struct UICommand
     uint type;
     uint temp;
 };
-
 StructuredBuffer<UICommand> commands : register(t0, space2);
+StructuredBuffer<uint> tile_counts : register(t1, space2);
+
 float sdLine(float2 p, float2 a, float2 b, float r)
 {
     float2 line_vec = float2(b - a);
@@ -38,46 +42,57 @@ float4 main(float4 screenSpace : SV_Position) : SV_Target
 {
     float2 pixel = screenSpace.xy;
     float4 color = bg_color;
-    for (uint i = 0u; i < count; ++i)
-    {
-        UICommand cmd = commands[i];
 
-        float d = 1e9;
-        if (cmd.type == 0u)
-        { // Circle
-            float2 center = cmd.data.xy;
-            float radius = cmd.data.z;
-            d = sdCircle(pixel - center, radius);
-        }
-        else if (cmd.type == 1u)
-        { // Line
-            float2 a = cmd.data.xy;
-            float2 b = cmd.data.zw;
-            d = sdLine(pixel, a, b, 2.0);
-        }
-        else if (cmd.type == 2u)
-        { // Rect
-            float2 rect_pos = cmd.data.xy;
-            float2 rect_size = cmd.data.zw;
-            float2 center = rect_pos + 0.5 * rect_size;
-            float2 half_size = 0.5 * rect_size;
-            d = sdBox(pixel - center, half_size);
-        }
+    if (heatmap == 0)
+    {
     
-        // Unpack the RGBA8 color.
-        uint c = cmd.color;
-        float4 col = float4(
+        for (uint i = 0u; i < count; ++i)
+        {
+            UICommand cmd = commands[i];
+            float d = 1e9;
+            if (cmd.type == 0u)
+            {
+                d = sdCircle(pixel - cmd.data.xy, cmd.data.z);
+            }
+            else if (cmd.type == 1u)
+            {
+                d = sdLine(pixel, cmd.data.xy, cmd.data.zw, 2.0);
+            }
+            else if (cmd.type == 2u)
+            {
+                float2 center = cmd.data.xy + 0.5 * cmd.data.zw;
+                d = sdBox(pixel - center, 0.5 * cmd.data.zw);
+            }
+            uint c = cmd.color;
+            float4 col = float4(
             ((c >> 0) & 0xFF) / 255.0,
             ((c >> 8) & 0xFF) / 255.0,
             ((c >> 16) & 0xFF) / 255.0,
             ((c >> 24) & 0xFF) / 255.0
         );
-        
-        
-        color = lerp(color, col, clamp(1.0 - d, 0.0, 1.0)*col.a);
-        
-       
+            color = lerp(color, col, clamp(1.0 - d, 0.0, 1.0) * col.a);
+        }
     }
+    else
+    {
+    
+        uint2 tile = uint2(pixel) / tile_size;
+        uint tile_id = tile.y * tiles_x + tile.x;
+
+        uint n = tile_counts[tile_id];
+        float heat = saturate(float(n) / 4.0); // 20 == MAX_ENTRIES_PER_TILE
+
+    // tint toward red where tiles are busy
+        const float DEBUG_MIX = 0.45; // 0 = shapes only, 1 = heatmap only
+        float3 hot = float3(1.0, 0.0, 0.0);
+        color.rgb = lerp(color.rgb, hot, heat * DEBUG_MIX);
+
+   
+    }
+     // faint tile grid lines
+    float2 g = frac(pixel / float(tile_size));
+    float grid = step(0.9, max(g.x, g.y));
+    color.rgb = lerp(color.rgb, float3(0.25, 0.25, 0.3), grid * 0.4);
     return color;
 
 }

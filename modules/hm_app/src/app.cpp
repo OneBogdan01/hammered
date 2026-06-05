@@ -3,8 +3,10 @@
 #include <print>
 #include <hm/version.hpp>
 
+hm::App::App() {
+    std::println("hm engine v.{}.{}.{}", version_major, version_minor, version_patch);
+}
 void hm::App::startup() const {
-    std::println("hm v.{}.{}.{}", version_major, version_minor, version_patch);
     for (auto& fn : m_startup_fn)
         fn();
 }

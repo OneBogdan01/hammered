@@ -11,4 +11,6 @@ struct WindowConfig {
 struct WindowHandle {
     SDL_Window* window{nullptr};
 };
+
+
 } // namespace hm

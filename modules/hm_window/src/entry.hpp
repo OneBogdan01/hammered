@@ -14,8 +14,8 @@ extern void hm_setup(hm::App& app);
 
 inline SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[]) {
     auto* app = new hm::App();
-    app->startup();
     hm_setup(*app);
+    app->startup();
     *appstate = app;
     return SDL_APP_CONTINUE;
 }

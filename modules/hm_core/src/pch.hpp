@@ -8,7 +8,6 @@
 #include <vector>
 #include <functional>
 
-
 namespace hm {
 
 using u8 = std::uint8_t;
@@ -37,6 +36,9 @@ using Opt = std::optional<T>;
 
 template <typename T>
 using Vec = std::vector<T>;
+
+template <typename T, usize N>
+using Array = std::array<T, N>;
 
 template <typename K, typename V>
 using HashMap = std::unordered_map<K, V>;

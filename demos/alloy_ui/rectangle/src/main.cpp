@@ -7,6 +7,7 @@
 
 static SDL_GPUGraphicsPipeline* pipeline;
 static SDL_GPUBuffer* vertex_buffer;
+void hm_setup(hm::App& app) {}
 struct Vertex {
     float x, y, z;
 };

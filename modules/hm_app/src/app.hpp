@@ -14,6 +14,7 @@ using Entity = flecs::entity;
 
 class App {
 public:
+    App();
     template <typename P, typename... Args>
     App& add_plugin(Args&&... args) {
         auto p = std::make_unique<P>(std::forward<Args>(args)...);

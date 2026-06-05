@@ -93,15 +93,15 @@ inline SDL_GPUComputePipeline* CreateComputePipelineFromShader(
     auto BasePath = SDL_GetBasePath();
 
     if (backendFormats & SDL_GPU_SHADERFORMAT_SPIRV) {
-        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/SPIRV/%s.spv", BasePath, shaderFilename);
+        SDL_snprintf(fullPath, sizeof(fullPath), "%sassets/shaders/compiled/spirv/%s.spv", BasePath, shaderFilename);
         format = SDL_GPU_SHADERFORMAT_SPIRV;
         entrypoint = "main";
     } else if (backendFormats & SDL_GPU_SHADERFORMAT_MSL) {
-        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/MSL/%s.msl", BasePath, shaderFilename);
+        SDL_snprintf(fullPath, sizeof(fullPath), "%sassets/shaders/compiled/msl/%s.msl", BasePath, shaderFilename);
         format = SDL_GPU_SHADERFORMAT_MSL;
         entrypoint = "main0";
     } else if (backendFormats & SDL_GPU_SHADERFORMAT_DXIL) {
-        SDL_snprintf(fullPath, sizeof(fullPath), "%sContent/Shaders/Compiled/DXIL/%s.dxil", BasePath, shaderFilename);
+        SDL_snprintf(fullPath, sizeof(fullPath), "%sassets/shaders/compiled/dxil/%s.dxil", BasePath, shaderFilename);
         format = SDL_GPU_SHADERFORMAT_DXIL;
         entrypoint = "main";
     } else {
@@ -119,7 +119,7 @@ inline SDL_GPUComputePipeline* CreateComputePipelineFromShader(
 
     // Make a copy of the create data, then overwrite the parts we need
     SDL_GPUComputePipelineCreateInfo newCreateInfo = *createInfo;
-    newCreateInfo.code = code;
+    newCreateInfo.code = static_cast<const Uint8*>(code);
     newCreateInfo.code_size = codeSize;
     newCreateInfo.entrypoint = entrypoint;
     newCreateInfo.format = format;
