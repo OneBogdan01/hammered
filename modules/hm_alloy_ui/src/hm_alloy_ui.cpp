@@ -29,6 +29,12 @@ void hm::alloy ::AlloyUiPlugin::build(App& app) {
                 return;
             }
             SDL_ClaimWindowForGPUDevice(gpu_device, window_handle->window);
+            if (!SDL_SetGPUSwapchainParameters(gpu_device, window_handle->window,
+                                               SDL_GPU_SWAPCHAINCOMPOSITION_SDR,
+                                               SDL_GPU_PRESENTMODE_IMMEDIATE)) {
+                SDL_Log("Could not set immediate present mode (falling back to vsync): %s",
+                        SDL_GetError());
+            }
         }
 
         a.world().ensure<UICommandBuffer>();

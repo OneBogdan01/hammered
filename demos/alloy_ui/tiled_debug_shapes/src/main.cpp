@@ -15,7 +15,7 @@ static SDL_GPUComputePipeline* compute_pipeline;
 static SDL_GPUBuffer* tile_buffer_count;
 static SDL_GPUBuffer* tile_buffer_indicies;
 static SDL_GPUTransferBuffer* tile_count_clear;
-constexpr hm::u32 MAX_ENTRIES_PER_TILE{20};
+constexpr hm::u32 MAX_ENTRIES_PER_TILE{200};
 static hm::u32 tiles_x;
 static hm::u32 tiles_y;
 static hm::u32 tile_count;
@@ -51,6 +51,14 @@ void hm_setup(hm::App& app) {
             cmd.add_rect(Rect{{200.0f, 50.0f, 400.0f, 150.0f}}, colors::u8::RED);
             cmd.add_line(Line{{50.0f, 200.0f}, {500.0f, 250.0f}}, colors::u8::CYAN);
             cmd.add_circle(Circle{{300.0f, 50.0f}, 50.0f}, colors::u8::WHITE);
+
+            constexpr u32 COLS = 1000;
+            constexpr u32 N = 10'000;
+            for (u32 i = 4; i < N; ++i) {
+                float x = static_cast<float>(i % COLS) / COLS * 640.0f;
+                float y = static_cast<float>(i / COLS) / (N / COLS) * 320.0f;
+                cmd.add_circle(Circle{{x, y}, 6.0f}, colors::u8::WHITE);
+            }
         }
         const auto* gpu_device = a.world().try_get<RendererHandle>();
         const auto* window_handle = a.world().try_get<WindowHandle>();
@@ -74,7 +82,7 @@ void hm_setup(hm::App& app) {
             }
 
             SDL_GPUShader* fragmentShader =
-                LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 2, 0);
+                LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 3, 0);
             if (fragmentShader == NULL) {
                 SDL_Log("Failed to create fragment shader!");
                 return;
@@ -246,6 +254,38 @@ void hm_setup(hm::App& app) {
         if (swapchain_texture != nullptr) {
             const auto time = SDL_GetTicks() / 1000.f;
 
+            static u32 mode = 0; // 0 brute, 1 tiled, 2 heatmap
+            static bool space_was_down = false;
+            const bool* keys = SDL_GetKeyboardState(nullptr);
+            const bool space_down = keys[SDL_SCANCODE_SPACE];
+
+            // --- perf timing (performance counter) ---
+            static const Uint64 perf_freq = SDL_GetPerformanceFrequency();
+            static Uint64 last_tick = SDL_GetPerformanceCounter();
+            static double accum_ms = 0.0;
+            static u32 frames = 0;
+
+            if (space_down && !space_was_down) {
+                mode = (mode + 1u) % 3u;
+                const char* names[]{"brute force", "tiled", "heatmap"};
+                std::println("--- mode -> {} ---", names[mode]);
+                accum_ms = 0.0;
+                frames = 0;                              // discard old mode's samples
+                last_tick = SDL_GetPerformanceCounter(); // <-- start the clock fresh
+            }
+            space_was_down = space_down;
+
+            const Uint64 now = SDL_GetPerformanceCounter();
+            accum_ms += static_cast<double>(now - last_tick) / static_cast<double>(perf_freq) * 1000.0;
+            last_tick = now;
+            if (++frames >= 60) {
+                const char* names[]{"brute force", "tiled", "heatmap"};
+                std::println("{} | {} shapes | {:.4f} ms/frame ({:.0f} fps)", names[mode], ui_count,
+                             accum_ms / frames, frames * 1000.0 / accum_ms);
+                accum_ms = 0.0;
+                frames = 0;
+            }
+
             for (auto i = 0; i < commands.size(); i++) {
                 auto& shape{commands[i]};
                 const auto r = static_cast<u8>(((std::sin(time + i) + 1.0f) / 2.0) * 255);
@@ -254,9 +294,12 @@ void hm_setup(hm::App& app) {
                 switch (shape.type) {
                 case ShapeType::Circle:
                     shape.color = uColor32{r, g, b, 255};
-                    shape.circle.radius = (std::sin(time * 2 + 29) + 1) / 2.0f * 10.0f + 10.0f;
-                    shape.circle.center.x = (std::cos(time * i) + 1) / 2.0f * 200.0f + 100 * i;
-                    shape.circle.center.y = (std::sin(time * i) + 1) / 2.0f * 200.0f + 20 * i;
+                    shape.circle.radius = (std::sin(time * 2 + i) + 1) / 2.0f * 4.0f + 4.0f;
+                    // wrap position to the screen instead of running off it
+                    shape.circle.center.x =
+                        std::fmod(std::sin(time + i * 0.3f) * 320.0f + 320.0f, 640.0f);
+                    shape.circle.center.y =
+                        std::fmod(std::cos(time + i * 0.7f) * 160.0f + 160.0f, 320.0f);
                     break;
                 case ShapeType::Line:
                     shape.line.a.x = shape.line.b.x + std::cos(time) * 10;
@@ -267,7 +310,6 @@ void hm_setup(hm::App& app) {
                     shape.rect.rect.h = (std::cos(time * 3) + 1) / 2.0f * 150;
                     shape.color.a =
                         std::clamp<u8>((std::cos(time * 5) + 1) / 2.0f * 255u, 150, 255u);
-
                     break;
                 }
             }
@@ -290,7 +332,7 @@ void hm_setup(hm::App& app) {
                 const SDL_GPUBufferRegion dst{
                     .buffer = ui_buffers.storage_buffer,
                     .offset = 0,
-                    .size = ui_count * sizeof(UICommand),
+                    .size = sizeof(UICommand) * ui_count,
                 };
 
                 SDL_UploadToGPUBuffer(copyPass, &src, &dst, true);
@@ -342,7 +384,6 @@ void hm_setup(hm::App& app) {
                 SDL_GPURenderPass* render_pass =
                     SDL_BeginGPURenderPass(cmdbuf, &color_target_info, 1, nullptr);
                 SDL_BindGPUGraphicsPipeline(render_pass, pipeline);
-                const bool* keys = SDL_GetKeyboardState(nullptr);
 
                 struct WindowSize {
                     f32 w;
@@ -352,7 +393,7 @@ void hm_setup(hm::App& app) {
                     fColor128 color;
                     u32 tiles_x;
                     u32 tile_size;
-                    u32 heatmap = 0;
+                    u32 mode = 0;
                 } window_size;
                 int w, h;
                 SDL_GetWindowSizeInPixels(window_handle->window, &w, &h);
@@ -363,11 +404,12 @@ void hm_setup(hm::App& app) {
                                .color = hm::alloy::colors::f128::GRAY,
                                .tiles_x = tiles_x,
                                .tile_size = TILE_SIZE,
-                               .heatmap = keys[SDL_SCANCODE_SPACE] ? 1u : 0u};
+                               .mode = mode};
                 SDL_PushGPUFragmentUniformData(cmdbuf, 0, &window_size, sizeof(window_size));
 
-                SDL_GPUBuffer* storage_buffers[]{ui_buffers.storage_buffer, tile_buffer_count};
-                SDL_BindGPUFragmentStorageBuffers(render_pass, 0, storage_buffers, 2);
+                SDL_GPUBuffer* storage_buffers[]{ui_buffers.storage_buffer, tile_buffer_count,
+                                                 tile_buffer_indicies};
+                SDL_BindGPUFragmentStorageBuffers(render_pass, 0, storage_buffers, 3);
 
                 const SDL_GPUBufferBinding binding{.buffer = vertex_buffer, .offset = 0};
                 SDL_BindGPUVertexBuffers(render_pass, 0, &binding, 1);

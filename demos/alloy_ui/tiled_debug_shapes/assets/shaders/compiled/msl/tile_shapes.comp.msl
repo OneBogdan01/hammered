@@ -78,9 +78,9 @@ kernel void main0(constant type_TileParams& TileParams [[buffer(0)]], const devi
             {
                 uint _124 = (uint(_105) * TileParams.tiles_x) + uint(_114);
                 uint _126 = atomic_fetch_add_explicit((device atomic_uint*)&counts._m0[_124], 1u, memory_order_relaxed);
-                if (_126 < 20u)
+                if (_126 < 200u)
                 {
-                    indices._m0[(_124 * 20u) + _126] = gl_GlobalInvocationID.x;
+                    indices._m0[(_124 * 200u) + _126] = gl_GlobalInvocationID.x;
                 }
             }
         }

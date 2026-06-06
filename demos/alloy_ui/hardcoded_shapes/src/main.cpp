@@ -12,6 +12,7 @@ struct Vertex {
 };
 void hm_setup(hm::App& app) {
     using namespace hm;
+    using namespace hm::alloy;
 
     app.world().set<WindowConfig>({.title = "Rectangle UI", .width = 640, .height = 320});
     app.add_plugin<WindowPlugin>().add_plugin<alloy::AlloyUiPlugin>();
@@ -24,14 +25,14 @@ void hm_setup(hm::App& app) {
 
         // Create the shaders
         SDL_GPUShader* vertexShader =
-            hm::LoadShader(gpu_device->gpu_device, "ui_canvas.vert", 0, 0, 0, 0);
+            LoadShader(gpu_device->gpu_device, "ui_canvas.vert", 0, 0, 0, 0);
         if (vertexShader == NULL) {
             SDL_Log("Failed to create vertex shader!");
             return;
         }
 
         SDL_GPUShader* fragmentShader =
-            hm::LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 0, 0);
+            LoadShader(gpu_device->gpu_device, "ui_canvas.frag", 0, 1, 0, 0);
         if (fragmentShader == NULL) {
             SDL_Log("Failed to create fragment shader!");
             return;
