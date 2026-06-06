@@ -1,0 +1,90 @@
+#pragma clang diagnostic ignored "-Wunused-variable"
+
+#include <metal_stdlib>
+#include <simd/simd.h>
+#include <metal_atomic>
+
+using namespace metal;
+
+struct UICommand
+{
+    float4 data;
+    uint color;
+    float shadow_strength;
+    uint type;
+    uint temp;
+};
+
+struct type_StructuredBuffer_UICommand
+{
+    UICommand _m0[1];
+};
+
+struct type_RWStructuredBuffer_uint
+{
+    uint _m0[1];
+};
+
+struct type_TileParams
+{
+    uint tiles_x;
+    uint tiles_y;
+    uint tile_size;
+    uint count;
+};
+
+kernel void main0(constant type_TileParams& TileParams [[buffer(0)]], const device type_StructuredBuffer_UICommand& commands [[buffer(1)]], device type_RWStructuredBuffer_uint& counts [[buffer(2)]], device type_RWStructuredBuffer_uint& indices [[buffer(3)]], uint3 gl_GlobalInvocationID [[thread_position_in_grid]])
+{
+    do
+    {
+        if (gl_GlobalInvocationID.x >= TileParams.count)
+        {
+            break;
+        }
+        float2 _78;
+        float2 _79;
+        if (commands._m0[gl_GlobalInvocationID.x].type == 0u)
+        {
+            float2 _62 = float2(commands._m0[gl_GlobalInvocationID.x].data.z);
+            _78 = commands._m0[gl_GlobalInvocationID.x].data.xy + _62;
+            _79 = commands._m0[gl_GlobalInvocationID.x].data.xy - _62;
+        }
+        else
+        {
+            float2 _76;
+            float2 _77;
+            if (commands._m0[gl_GlobalInvocationID.x].type == 1u)
+            {
+                _76 = precise::max(commands._m0[gl_GlobalInvocationID.x].data.xy, commands._m0[gl_GlobalInvocationID.x].data.zw);
+                _77 = precise::min(commands._m0[gl_GlobalInvocationID.x].data.xy, commands._m0[gl_GlobalInvocationID.x].data.zw);
+            }
+            else
+            {
+                _76 = commands._m0[gl_GlobalInvocationID.x].data.xy + commands._m0[gl_GlobalInvocationID.x].data.zw;
+                _77 = commands._m0[gl_GlobalInvocationID.x].data.xy;
+            }
+            _78 = _76;
+            _79 = _77;
+        }
+        int2 _90 = int2(int(TileParams.tiles_x) - 1, int(TileParams.tiles_y) - 1);
+        int2 _96 = int2(int(TileParams.tile_size));
+        int2 _98 = clamp(int2(floor(_79 - float2(3.0))) / _96, int2(0), _90);
+        int2 _102 = clamp(int2(floor(_78 + float2(3.0))) / _96, int2(0), _90);
+        int _103 = _98.y;
+        for (int _105 = _103; _105 <= _102.y; _105++)
+        {
+            int _112 = _98.x;
+            for (int _114 = _112; _114 <= _102.x; _114++)
+            {
+                uint _124 = (uint(_105) * TileParams.tiles_x) + uint(_114);
+                uint _126 = atomic_fetch_add_explicit((device atomic_uint*)&counts._m0[_124], 1u, memory_order_relaxed);
+                if (_126 < 200u)
+                {
+                    indices._m0[(_124 * 200u) + _126] = gl_GlobalInvocationID.x;
+                }
+            }
+        }
+        break;
+    } while(false);
+}
+

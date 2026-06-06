@@ -1,0 +1,187 @@
+#include <metal_stdlib>
+#include <simd/simd.h>
+
+using namespace metal;
+
+struct type_Frame
+{
+    float2 res;
+    float time;
+    uint count;
+    float4 bg_color;
+    uint tiles_x;
+    uint tile_size;
+    uint mode;
+};
+
+struct UICommand
+{
+    float4 data;
+    uint color;
+    float shadow_strength;
+    uint type;
+    uint temp;
+};
+
+struct type_StructuredBuffer_UICommand
+{
+    UICommand _m0[1];
+};
+
+struct type_StructuredBuffer_uint
+{
+    uint _m0[1];
+};
+
+struct main0_out
+{
+    float4 out_var_SV_Target [[color(0)]];
+};
+
+fragment main0_out main0(constant type_Frame& Frame [[buffer(0)]], const device type_StructuredBuffer_UICommand& commands [[buffer(1)]], const device type_StructuredBuffer_uint& tile_counts [[buffer(2)]], const device type_StructuredBuffer_uint& tile_indices [[buffer(3)]], float4 gl_FragCoord [[position]])
+{
+    main0_out out = {};
+    uint2 _78 = uint2(gl_FragCoord.xy) / uint2(Frame.tile_size);
+    uint _84 = (_78.y * Frame.tiles_x) + _78.x;
+    float4 _298;
+    if (Frame.mode == 0u)
+    {
+        float4 _92;
+        _92 = Frame.bg_color;
+        float4 _93;
+        for (uint _95 = 0u; _95 < Frame.count; _92 = _93, _95++)
+        {
+            float _153;
+            if (commands._m0[_95].type == 0u)
+            {
+                _153 = length(gl_FragCoord.xy - commands._m0[_95].data.xy) - commands._m0[_95].data.z;
+            }
+            else
+            {
+                float _152;
+                if (commands._m0[_95].type == 1u)
+                {
+                    float2 _123 = commands._m0[_95].data.zw - commands._m0[_95].data.xy;
+                    float2 _124 = gl_FragCoord.xy - commands._m0[_95].data.xy;
+                    _152 = length(_124 - (_123 * precise::min(1.0, precise::max(0.0, dot(_124, _123) / dot(_123, _123))))) - 2.0;
+                }
+                else
+                {
+                    float _151;
+                    if (commands._m0[_95].type == 2u)
+                    {
+                        float2 _139 = commands._m0[_95].data.zw * 0.5;
+                        float2 _143 = abs(gl_FragCoord.xy - (commands._m0[_95].data.xy + _139)) - _139;
+                        _151 = length(precise::max(_143, float2(0.0))) + precise::min(precise::max(_143.x, _143.y), 0.0);
+                    }
+                    else
+                    {
+                        _151 = 1000000000.0;
+                    }
+                    _152 = _151;
+                }
+                _153 = _152;
+            }
+            float _168 = float((commands._m0[_95].color >> 24u) & 255u) * 0.0039215688593685626983642578125;
+            _93 = mix(_92, float4(float(commands._m0[_95].color & 255u) * 0.0039215688593685626983642578125, float((commands._m0[_95].color >> 8u) & 255u) * 0.0039215688593685626983642578125, float((commands._m0[_95].color >> 16u) & 255u) * 0.0039215688593685626983642578125, _168), float4(fast::clamp(1.0 - _153, 0.0, 1.0) * _168));
+        }
+        _298 = _92;
+    }
+    else
+    {
+        float4 _297;
+        if (Frame.mode == 1u)
+        {
+            uint _180 = min(tile_counts._m0[_84], 200u);
+            float4 _182;
+            _182 = Frame.bg_color;
+            float4 _183;
+            for (uint _185 = 0u; _185 < _180; _182 = _183, _185++)
+            {
+                uint _191 = (_84 * 200u) + _185;
+                float _245;
+                if (commands._m0[tile_indices._m0[_191]].type == 0u)
+                {
+                    _245 = length(gl_FragCoord.xy - commands._m0[tile_indices._m0[_191]].data.xy) - commands._m0[tile_indices._m0[_191]].data.z;
+                }
+                else
+                {
+                    float _244;
+                    if (commands._m0[tile_indices._m0[_191]].type == 1u)
+                    {
+                        float2 _215 = commands._m0[tile_indices._m0[_191]].data.zw - commands._m0[tile_indices._m0[_191]].data.xy;
+                        float2 _216 = gl_FragCoord.xy - commands._m0[tile_indices._m0[_191]].data.xy;
+                        _244 = length(_216 - (_215 * precise::min(1.0, precise::max(0.0, dot(_216, _215) / dot(_215, _215))))) - 2.0;
+                    }
+                    else
+                    {
+                        float _243;
+                        if (commands._m0[tile_indices._m0[_191]].type == 2u)
+                        {
+                            float2 _231 = commands._m0[tile_indices._m0[_191]].data.zw * 0.5;
+                            float2 _235 = abs(gl_FragCoord.xy - (commands._m0[tile_indices._m0[_191]].data.xy + _231)) - _231;
+                            _243 = length(precise::max(_235, float2(0.0))) + precise::min(precise::max(_235.x, _235.y), 0.0);
+                        }
+                        else
+                        {
+                            _243 = 1000000000.0;
+                        }
+                        _244 = _243;
+                    }
+                    _245 = _244;
+                }
+                float _260 = float((commands._m0[tile_indices._m0[_191]].color >> 24u) & 255u) * 0.0039215688593685626983642578125;
+                _183 = mix(_182, float4(float(commands._m0[tile_indices._m0[_191]].color & 255u) * 0.0039215688593685626983642578125, float((commands._m0[tile_indices._m0[_191]].color >> 8u) & 255u) * 0.0039215688593685626983642578125, float((commands._m0[tile_indices._m0[_191]].color >> 16u) & 255u) * 0.0039215688593685626983642578125, _260), float4(fast::clamp(1.0 - _245, 0.0, 1.0) * _260));
+            }
+            _297 = _182;
+        }
+        else
+        {
+            bool _268 = tile_counts._m0[_84] == 0u;
+            float3 _291;
+            if (_268)
+            {
+                _291 = Frame.bg_color.xyz;
+            }
+            else
+            {
+                float3 _290;
+                if (tile_counts._m0[_84] <= 2u)
+                {
+                    _290 = float3(0.0, 0.4000000059604644775390625, 1.0);
+                }
+                else
+                {
+                    float3 _289;
+                    if (tile_counts._m0[_84] <= 8u)
+                    {
+                        _289 = float3(0.0, 1.0, 0.4000000059604644775390625);
+                    }
+                    else
+                    {
+                        float3 _288;
+                        if (tile_counts._m0[_84] <= 32u)
+                        {
+                            _288 = float3(1.0, 0.89999997615814208984375, 0.0);
+                        }
+                        else
+                        {
+                            _288 = select(float3(1.0, 0.0, 0.0), float3(1.0, 0.449999988079071044921875, 0.0), bool3(tile_counts._m0[_84] <= 128u));
+                        }
+                        _289 = _288;
+                    }
+                    _290 = _289;
+                }
+                _291 = _290;
+            }
+            float3 _295 = mix(Frame.bg_color.xyz, _291, float3(_268 ? 0.0 : 0.699999988079071044921875));
+            _297 = float4(_295.x, _295.y, _295.z, Frame.bg_color.w);
+        }
+        _298 = _297;
+    }
+    float2 _302 = fract(gl_FragCoord.xy / float2(float(Frame.tile_size)));
+    float3 _310 = mix(_298.xyz, float3(0.25, 0.25, 0.300000011920928955078125), float3(step(0.89999997615814208984375, precise::max(_302.x, _302.y)) * 0.4000000059604644775390625));
+    out.out_var_SV_Target = float4(_310.x, _310.y, _310.z, _298.w);
+    return out;
+}
+
