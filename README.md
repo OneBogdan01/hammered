@@ -10,8 +10,8 @@ I write articles about topics I explore in Hammered. Each article links to the v
 
 | Article | Code |
 |---|---|
-| [CMake Setup](https://tycro-games.github.io/posts/Hammered-Cross-Platform-Game-Engine-CMake-Setup/) — CMake build system with OpenGL and Vulkan backends| [Browse code (branch)](https://github.com/OneBogdan01/hammered/tree/cmake-opengl-vulkan-set-up) |
-| [Learning Multithreading With a Logger](https://tycro-games.github.io/posts/Learning-Multithreading-With-A-Logger/) — Async logging and exploration of multithreading *(Vulkan backend only)* | [Browse code (commit)](https://github.com/OneBogdan01/hammered/tree/b7f02d68582e81e534c6a6183b8724575e26d28f) |
+| [CMake Setup](https://tycro-games.github.io/posts/Hammered-Cross-Platform-Game-Engine-CMake-Setup/) -> CMake build system with OpenGL and Vulkan backends| [Browse code (branch)](https://github.com/OneBogdan01/hammered/tree/cmake-opengl-vulkan-set-up) |
+| [Learning Multithreading With a Logger](https://tycro-games.github.io/posts/Learning-Multithreading-With-A-Logger/) -> Async logging and exploration of multithreading *(Vulkan backend only)* | [Browse code (commit)](https://github.com/OneBogdan01/hammered/tree/b7f02d68582e81e534c6a6183b8724575e26d28f) |
 
 > **Tip:** The code links point to snapshots of the project at the time each article was written. The `main` branch reflects the latest state of the engine.
 
