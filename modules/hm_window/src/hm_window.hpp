@@ -1,7 +1,6 @@
 #pragma once
 #include "plugin.hpp"
-
-
+#include "window.hpp"
 namespace hm {
 
 class WindowPlugin : public Plugin {

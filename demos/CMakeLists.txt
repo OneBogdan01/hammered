@@ -15,27 +15,18 @@ foreach(main_cpp ${demo_mains})
         
         add_executable(demo_${demo} ${DEMO_SOURCES})
         target_link_libraries(demo_${demo} PRIVATE hammered-engine)
-        
-        if(EMSCRIPTEN)
-            set_target_properties(demo_${demo} PROPERTIES
-                    SUFFIX ".html"
-                    OUTPUT_NAME "index"
-            )
 
-            # Shared flags
-            target_link_options(demo_${demo} PRIVATE
-                -sALLOW_MEMORY_GROWTH=1 
-                -sSTACK_SIZE=1mb
-                -sEXPORTED_RUNTIME_METHODS=cwrap 
-                --shell-file ${CMAKE_SOURCE_DIR}/shell.html
+        if(EMSCRIPTEN)
+            set_target_properties(game PROPERTIES SUFFIX ".html" OUTPUT_NAME "index")
+            target_link_options(game PRIVATE
+                    -sALLOW_MEMORY_GROWTH=1
+                    -sSTACK_SIZE=1mb
+                    -sEXPORTED_RUNTIME_METHODS=cwrap
+                    --shell-file ${hammered_SOURCE_DIR}/shell.html
             )
-            # Debug-only flags
             if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-                target_link_options(demo_${demo} PRIVATE
-                    -sASSERTIONS=2
-                    -sSTACK_OVERFLOW_CHECK=2
-                    -sSAFE_HEAP=1
-                    -sGL_ASSERTIONS=1
+                target_link_options(game PRIVATE
+                        -sASSERTIONS=2 -sSTACK_OVERFLOW_CHECK=2 -sSAFE_HEAP=1 -sGL_ASSERTIONS=1
                 )
             endif()
         endif()

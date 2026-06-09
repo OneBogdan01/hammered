@@ -1,14 +1,11 @@
 #include "prelude.hpp"
 
 #include "entry.hpp"
-#include "hm_window.hpp"
-#include "renderer.hpp"
-#include "window.hpp"
-#include <cmath>
+
 void hm_setup(hm::App& app) {
     app.add_plugin<hm::WindowPlugin>().add_plugin<hm::alloy::AlloyUiPlugin>();
 
-    app.world().set(hm::WindowConfig{.title = "Hello Window", .width = 400, .height = 400});
+    app.world().set(hm::WindowConfig{.title = "Clear Window", .width = 400, .height = 400});
 
     app.add_systems(hm::Schedule::Update, [](hm::App& a) {
         auto* render_handle = a.world().try_get<hm::RendererHandle>();
