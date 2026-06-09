@@ -1,11 +1,10 @@
 #pragma once
 #include "plugin.hpp"
-#include "window.hpp"
 namespace hm {
 
-class WindowPlugin : public Plugin {
+class CompatibleRendererPlugin : public Plugin {
   public:
-    HM_PLUGIN(Window)
+    HM_PLUGIN(CompatibleRenderer);
     void build(App& app) override;
 };
 } // namespace hm

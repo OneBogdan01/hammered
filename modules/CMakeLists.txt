@@ -2,7 +2,7 @@ file(GLOB children RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
 set(HM_ALL_MODULES "")
 
 foreach(child ${children})
-    if(child STREQUAL "hammered-engine")
+    if(child STREQUAL "hammered_engine")
         continue()
     endif()
     
@@ -20,8 +20,7 @@ foreach(module ${HM_ALL_MODULES})
     endif()
 endforeach()
 
-# Make variable available to subdirectory
 set(HM_ALL_MODULES ${HM_ALL_MODULES} CACHE INTERNAL "All HM modules")
 
 # Add umbrella last
-add_subdirectory(hammered-engine)
+add_subdirectory(hammered_engine)
