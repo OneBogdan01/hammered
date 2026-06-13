@@ -1,4 +1,5 @@
 #pragma once
+// C++ libs
 #include <cstdint>
 #include <cwchar>
 #include <memory>
@@ -7,7 +8,8 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
-
+#include <print>
+#include <ranges>
 namespace hm {
 
 using u8 = std::uint8_t;
@@ -45,4 +47,5 @@ using HashMap = std::unordered_map<K, V>;
 
 using String = std::string;
 using StringView = std::string_view;
+
 } // namespace hm

@@ -1,9 +1,9 @@
 ﻿#pragma once
 #include "SDL3/SDL_pixels.h"
-namespace hm::alloy {
+namespace hm {
 using uColor32 = SDL_Color;
 using fColor128 = SDL_FColor;
-} // namespace hm::alloy
+} // namespace hm
 namespace hm::alloy::colors {
 constexpr fColor128 from_u8(uColor32 c) {
     return {
@@ -50,6 +50,6 @@ constexpr fColor128 BLUE = from_u8(u8::BLUE);
 constexpr fColor128 YELLOW = from_u8(u8::YELLOW);
 constexpr fColor128 CYAN = from_u8(u8::CYAN);
 constexpr fColor128 MAGENTA = from_u8(u8::MAGENTA);
-} // namespace f
+} // namespace f128
 
 } // namespace hm::alloy::colors

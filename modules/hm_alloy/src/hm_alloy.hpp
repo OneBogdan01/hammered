@@ -1,12 +1,19 @@
 ﻿#pragma once
+#include "command_buffer.hpp"
+#include "pch.hpp"
 #include "plugin.hpp"
-#include "SDL3/SDL_rect.h"
-namespace hm::alloy  {
+namespace hm  {
 
-
-class AlloyUiPlugin : public Plugin {
+/**
+ * Alloy is a signed distance field renderer.
+ */
+class AlloyPlugin : public Plugin {
   public:
     HM_PLUGIN(AlloyUI)
     void build(App& app) override;
+
+private:
+    CommandBuffer m_command_buffer{};
+
 };
 } // namespace hm

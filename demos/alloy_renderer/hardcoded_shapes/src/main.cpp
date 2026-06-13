@@ -1,9 +1,7 @@
 ﻿#include "prelude.hpp"
 
-#include "entry.hpp"
-#include "hm_alloy_ui.hpp"
+#include "hm_alloy.hpp"
 #include "renderer.hpp"
-#include "window.hpp"
 
 static SDL_GPUGraphicsPipeline* pipeline;
 static SDL_GPUBuffer* vertex_buffer;
@@ -101,13 +99,11 @@ static void upload_fullscreen_triangle(SDL_GPUDevice* device) {
     SDL_ReleaseGPUTransferBuffer(device, transfer_buffer);
 }
 
-
 void hm_setup(hm::App& app) {
     using namespace hm;
-    using namespace hm::alloy;
 
-    app.world().set<WindowConfig>({.title = "Rectangle UI", .width = 640, .height = 320});
-    app.add_plugin<WindowPlugin>().add_plugin<alloy::AlloyUiPlugin>();
+    app.add_plugin<WindowPlugin>(WindowConfig{.title = "Rectangle UI", .width = 640, .height = 320})
+        .add_plugin<AlloyPlugin>();
 
     app.add_systems(Schedule::Startup, [](App& a) {
         const auto* gpu_device = a.world().try_get<RendererHandle>();

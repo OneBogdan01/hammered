@@ -1,44 +1,30 @@
 #include "hm_window.hpp"
 #include "app.hpp"
-#include "window.hpp"
+#include "hm_sdl.hpp"
 
-#include <SDL3/SDL.h>
 
 namespace hm {
+WindowPlugin::WindowPlugin(const WindowConfig cfg) : m_cfg(cfg) {}
 void WindowPlugin::build(App& app) {
-    auto& world = app.world();
-    world.ensure<WindowConfig>();
-
-    app.add_systems(Schedule::Startup, [](App& a) {
-        if (!SDL_Init(SDL_INIT_VIDEO)) {
-            SDL_Log("SDL_Init failed: %s", SDL_GetError());
+    app.add_systems(Schedule::Startup, [this](App&) {
+        // TODO add proper flags here based on build
+        if (!check_sdl(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMEPAD)))
             return;
-        }
 
-        const auto* cfg = a.world().try_get<WindowConfig>();
-        assert(cfg);
-
-        auto* win =
-            SDL_CreateWindow(cfg->title.c_str(), cfg->width, cfg->height, SDL_WINDOW_RESIZABLE);
-        if (!win) {
-            SDL_Log("SDL_CreateWindow failed: %s", SDL_GetError());
+        m_window_handle = check_sdl(
+            SDL_CreateWindow(m_cfg.title.c_str(), m_cfg.width, m_cfg.height, m_cfg.window_flags));
+        if (!m_window_handle)
             return;
-        }
 
-        a.world().set<WindowHandle>({.window = win});
-        SDL_Log("Window created successfully");
+        log::info("Window created successfully");
     });
 
-    app.add_systems(Schedule::Shutdown, [](App& a) {
-        auto& world = a.world();
-
-        auto& handle = world.ensure<WindowHandle>();
-        if (handle.window)
-            SDL_DestroyWindow(handle.window);
-
-        handle.window = nullptr;
+    app.add_systems(Schedule::Shutdown, [this](App&) {
+        if (m_window_handle)
+            SDL_DestroyWindow(m_window_handle);
+        m_window_handle = nullptr;
         SDL_Quit();
-        SDL_Log("Window destroyed");
+        log::info("Window destroyed");
     });
 }
 } // namespace hm

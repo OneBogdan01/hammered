@@ -6,11 +6,11 @@
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_filesystem.h>
 // TODO move to a separate module
+// There are various problems here, the config is set in stone, there are handles for GPU SDL stuff around
+// Loading of the shaders and compute graphics pipeline are here for some reason or another
 namespace hm::alloy {
 constexpr u64 MAX_NUMBER_UI_SHAPES{1'048'576u};
-struct RendererHandle {
-    SDL_GPUDevice* gpu_device{nullptr};
-};
+
 struct UIRenderResources {
     SDL_GPUTransferBuffer* transfer_buffer;
     SDL_GPUBuffer* storage_buffer;

@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include "colors.hpp"
+#include "hm_sdl.hpp"
 #include "SDL3/SDL_pixels.h"
 #include "SDL3/SDL_rect.h"
-namespace hm::alloy {
-using fPoint64 = SDL_FPoint;
-using fRect128 = SDL_FRect;
+namespace hm {
+
 enum class ShapeType : u32 { Circle, Line, Rect };
 
 struct Circle {
@@ -50,11 +50,11 @@ struct alignas(16) UICommand {
     //  TODO add clipping rect
 };
 static_assert(sizeof(UICommand) == 32);
-class UICommandBuffer {
+class CommandBuffer {
   public:
-    UICommandBuffer& add_circle(Circle circle, uColor32 color);
-    UICommandBuffer& add_rect(Rect rect, uColor32 color);
-    UICommandBuffer& add_line(Line line, uColor32 color);
+    CommandBuffer& add_circle(Circle circle, uColor32 color);
+    CommandBuffer& add_rect(Rect rect, uColor32 color);
+    CommandBuffer& add_line(Line line, uColor32 color);
 
     Vec<UICommand>& get_commands();
 

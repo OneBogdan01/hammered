@@ -13,15 +13,11 @@ void hm::App::startup() const {
     for (auto& fn : m_startup_fn)
         fn();
 }
-void hm::App::update() const {
-    m_world.progress();
-}
-void hm::App::shutdown() {
-    while (!m_shutdown_fn.empty()) {
-        m_shutdown_fn.top()();
-        m_shutdown_fn.pop();
+void hm::App::update() const {}
+void hm::App::shutdown() const {
+    for (auto& fn : m_shutdown_fn | std::views::reverse) {
+        fn();
     }
-    m_world.quit();
 }
 
 /// SDL Callbacks
@@ -33,9 +29,15 @@ SDL_AppResult SDL_AppInit(void** appstate, int, char**) {
 }
 
 SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event) {
-    //TODO Input and other OS specific events
+    // TODO Input and other OS specific events
     if (event->type == SDL_EVENT_QUIT)
         return SDL_APP_SUCCESS;
+    return SDL_APP_CONTINUE;
+}
+SDL_AppResult SDL_AppIterate(void* appstate) {
+    auto* app = static_cast<hm::App*>(appstate);
+    // update everything in the loop
+    app->update();
     return SDL_APP_CONTINUE;
 }
 void SDL_AppQuit(void* appstate, SDL_AppResult) {
