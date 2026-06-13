@@ -1,6 +1,6 @@
 ﻿# Alloy UI - demos
 
-Small, self-contained demos for **Alloy**, the 2D SDF UI renderer in the Hammered engine. The module itself lives in [`modules/hm_alloy_ui`](../../modules/hm_alloy_ui);
+Small, self-contained demos for **Alloy**, the 2D SDF UI renderer in the Hammered engine. The module itself lives in [`modules/hm_alloy_ui`](../../modules/hm_alloy);
 
 > Full writeup: **[A Quick 2D SDF Renderer with Tiled Rendering](https://tycro-games.github.io/posts/A-quick-2D-SDF-Renderer-with-Tiled-Rendering/)**
 

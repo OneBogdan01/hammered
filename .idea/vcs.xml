@@ -7,6 +7,8 @@
     <mapping directory="$PROJECT_DIR$/cmake-build-debug/_deps/sdl3-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/flecs-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/cmake-build-release/_deps/sdl3-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/flecs-src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/cmake-build-relwithdebinfo/_deps/sdl3-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/out/build/windows-ninja-develop/_deps/flecs-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/out/build/windows-ninja-develop/_deps/sdl3-src" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/out/build_web/_deps/flecs-src" vcs="Git" />

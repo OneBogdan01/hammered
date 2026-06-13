@@ -18,8 +18,8 @@ class Plugin {
     virtual bool ready(App&) {
         return true;
     }
-    virtual void finish(App&) {}
-    virtual void cleanup(App&) {}
+    // virtual void finish(App&) {}
+    // virtual void cleanup(App&) {}
     virtual std::string_view name() const = 0;
 
 };

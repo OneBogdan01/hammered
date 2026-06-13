@@ -3,15 +3,5 @@ hm_add_module(hm_window)
 
 function(hm_window_link_deps)
     hm_module_deps(hm_window DEPS hm_app)
-    # External deps
-    CPMAddPackage(
-        NAME SDL3
-        GITHUB_REPOSITORY libsdl-org/SDL
-        GIT_TAG release-3.4.2
-        OPTIONS
-            "SDL_SHARED OFF"
-            "SDL_STATIC ON"
-)
-# TODO remove public
-target_link_libraries(hm_window PUBLIC SDL3::SDL3-static)
+
 endfunction()

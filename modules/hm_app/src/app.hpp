@@ -1,13 +1,11 @@
 #pragma once
 #include "plugin.hpp"
+#include "schedule.hpp"
 
-#include <flecs.h>
 #include <stack>
-
 
 namespace hm {
 
-enum class Schedule { Startup, PreUpdate, Update, PostUpdate, Shutdown };
 
 using World  = flecs::world;
 using Entity = flecs::entity;
@@ -36,10 +34,6 @@ public:
             return *this;
         }
 
-        m_world.system()
-            .kind(to_flecs_phase(label))
-            .run([this, fn = std::forward<F>(fn)](flecs::iter&) { fn(*this); });
-        return *this;
     }
 
     void startup() const;
@@ -51,16 +45,6 @@ public:
     }
 
 private:
-    flecs::entity_t to_flecs_phase(Schedule label) const {
-        switch (label) {
-        case Schedule::Startup:    return flecs::OnStart;
-        case Schedule::PreUpdate:  return flecs::PreUpdate;
-        case Schedule::Update:     return flecs::OnUpdate;
-        case Schedule::PostUpdate: return flecs::PostUpdate;
-        case Schedule::Shutdown:   break;
-        }
-        return {};
-    }
 
 
     World m_world;

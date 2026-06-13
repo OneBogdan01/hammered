@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "pch.hpp"
+
 #include <SDL3/SDL_gpu.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_filesystem.h>

@@ -2,15 +2,15 @@
 
 function(hm_app_link_deps)
     hm_module_deps(hm_app DEPS hm_core)
-
     CPMAddPackage(
-        NAME flecs
-        GITHUB_REPOSITORY SanderMertens/flecs
-        GIT_TAG v4.1.4
-        OPTIONS
-            "FLECS_SHARED OFF"
+            NAME SDL3
+            GITHUB_REPOSITORY libsdl-org/SDL
+            GIT_TAG release-3.4.2
+            OPTIONS
+            "SDL_SHARED OFF"
+            "SDL_STATIC ON"
     )
-    target_link_libraries(hm_app PUBLIC flecs::flecs_static)
+    target_link_libraries(hm_app PUBLIC SDL3::SDL3-static)
 
 endfunction()
 
