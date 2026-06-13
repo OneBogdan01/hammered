@@ -3,7 +3,7 @@
 #include "hm_sdl.hpp"
 #include "hm_window.hpp"
 
-namespace hm::alloy {
+namespace hm {
 
 void AlloyPlugin::build(App& app) {
     app.add_systems(Schedule::Startup, [this](App& a) {

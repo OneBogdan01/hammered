@@ -4,7 +4,7 @@ namespace hm {
 using uColor32 = SDL_Color;
 using fColor128 = SDL_FColor;
 } // namespace hm
-namespace hm::alloy::colors {
+namespace hm::colors {
 constexpr fColor128 from_u8(uColor32 c) {
     return {
         c.r / 255.0f,

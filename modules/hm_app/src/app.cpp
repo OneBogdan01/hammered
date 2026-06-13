@@ -13,16 +13,20 @@ void hm::App::startup() const {
     for (auto& fn : m_startup_fn)
         fn();
 }
-void hm::App::update() const {}
+void hm::App::update() const {
+    for (auto& fn : m_update_fn)
+        fn();
+}
 void hm::App::shutdown() const {
     for (auto& fn : m_shutdown_fn | std::views::reverse) {
         fn();
     }
 }
-
+extern void hm_setup(hm::App& app);
 /// SDL Callbacks
 SDL_AppResult SDL_AppInit(void** appstate, int, char**) {
     auto* app = new hm::App();
+    hm_setup(*app);
     app->startup();
     *appstate = app;
     return SDL_APP_CONTINUE;

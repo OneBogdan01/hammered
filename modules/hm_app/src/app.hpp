@@ -30,12 +30,14 @@ class App {
         case Schedule::PreUpdate:
             break;
         case Schedule::Update:
+            m_update_fn.emplace_back(std::move(wrap));
             break;
         case Schedule::PostUpdate:
             break;
         case Schedule::FixedUpdate:
             break;
         }
+        return *this;
     }
     template <std::derived_from<Plugin> PluginType>
     Opt<std::reference_wrapper<PluginType>> get_plugin_mutable() {
@@ -63,6 +65,8 @@ class App {
   private:
     std::vector<std::function<void()>> m_startup_fn;
     std::vector<std::function<void()>> m_shutdown_fn;
+    std::vector<std::function<void()>> m_update_fn;
+
     std::vector<std::unique_ptr<Plugin>> m_plugins;
 };
 

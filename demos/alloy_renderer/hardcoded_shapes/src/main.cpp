@@ -1,6 +1,7 @@
 ﻿#include "prelude.hpp"
 
 #include "hm_alloy.hpp"
+#include "hm_gpu.hpp"
 #include "renderer.hpp"
 
 static SDL_GPUGraphicsPipeline* pipeline;
@@ -98,46 +99,42 @@ static void upload_fullscreen_triangle(SDL_GPUDevice* device) {
     SDL_SubmitGPUCommandBuffer(upload_cmd);
     SDL_ReleaseGPUTransferBuffer(device, transfer_buffer);
 }
-
+hm::GPUDeviceHandle g_device;
+hm::WindowHandle g_window;
 void hm_setup(hm::App& app) {
     using namespace hm;
 
-    app.add_plugin<WindowPlugin>(WindowConfig{.title = "Rectangle UI", .width = 640, .height = 320})
-        .add_plugin<AlloyPlugin>();
+    app.add_plugin<WindowPlugin>(
+           WindowConfig{.title = "Rectangle UI", .width = 640, .height = 320})
+        .add_plugin<GPUPlugin>();
 
     app.add_systems(Schedule::Startup, [](App& a) {
-        const auto* gpu_device = a.world().try_get<RendererHandle>();
-        const auto* window_handle = a.world().try_get<WindowHandle>();
-        if (gpu_device == nullptr || window_handle == nullptr) {
+        auto gpu_plugin = a.get_plugin_mutable<GPUPlugin>();
+        auto window_plugin = a.get_plugin_mutable<WindowPlugin>();
+        if (!gpu_plugin || !window_plugin) {
+            log::error("hardcoded_shapes needs WindowPlugin and GPUPlugin");
             return;
         }
-        SDL_GPUDevice* device = gpu_device->gpu_device;
-        SDL_Window* window = window_handle->window;
+         g_device = gpu_plugin->get().get_gpu_handle();
+         g_window = window_plugin->get().get_window_handle();
+        if (g_device == nullptr || g_window == nullptr) {
+            log::error("GPU device or window was not initialized");
+            return;
+        }
 
-        if (!create_ui_pipeline(device, window)) {
-            return;
-        }
-        upload_fullscreen_triangle(device);
+        if (!create_ui_pipeline(g_device, g_window)) return;
+        upload_fullscreen_triangle(g_device);
     });
 
-    app.add_systems(Schedule::Update, [](App& a) {
-        const auto& world = a.world();
-        const auto* gpu_device = world.try_get<RendererHandle>();
-        const auto* window_handle = world.try_get<WindowHandle>();
-        if (!gpu_device || !window_handle)
-            return;
-        SDL_GPUDevice* device = gpu_device->gpu_device;
+    app.add_systems(Schedule::Update, [](App&) {
+        if (g_device == nullptr || g_window == nullptr) return;
 
-        auto* cmdbuf = SDL_AcquireGPUCommandBuffer(device);
-        if (cmdbuf == nullptr) {
-            SDL_Log("AcquireGPUCommandBuffer failed: %s", SDL_GetError());
-            return;
-        }
+        auto* cmdbuf = check_sdl(SDL_AcquireGPUCommandBuffer(g_device));
+        if (cmdbuf == nullptr) return;
 
         SDL_GPUTexture* swapchain_texture;
-        if (!SDL_WaitAndAcquireGPUSwapchainTexture(cmdbuf, window_handle->window,
-                                                   &swapchain_texture, nullptr, nullptr)) {
-            SDL_Log("WaitAndAcquireGPUSwapchainTexture failed: %s", SDL_GetError());
+        if (!check_sdl(SDL_WaitAndAcquireGPUSwapchainTexture(
+                cmdbuf, g_window, &swapchain_texture, nullptr, nullptr))) {
             return;
         }
 
@@ -155,12 +152,10 @@ void hm_setup(hm::App& app) {
             SDL_BindGPUGraphicsPipeline(render_pass, pipeline);
 
             struct WindowSize {
-                f32 w;
-                f32 h;
-                f32 t;
+                f32 w, h, t;
             } window_size;
             int w, h;
-            SDL_GetWindowSizeInPixels(window_handle->window, &w, &h);
+            SDL_GetWindowSizeInPixels(g_window, &w, &h);
             window_size = {.w = static_cast<f32>(w), .h = static_cast<f32>(h), .t = time};
             SDL_PushGPUFragmentUniformData(cmdbuf, 0, &window_size, sizeof(window_size));
 
