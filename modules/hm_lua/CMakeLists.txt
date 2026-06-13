@@ -22,11 +22,11 @@ function(hm_lua_link_deps)
             GIT_TAG v3.3.0
     )
 # TODO remove public
-target_link_libraries(hm_lua PRIVATE
+target_link_libraries(hm_lua PUBLIC
     lua_static
     sol2::sol2
 )
-target_compile_definitions(hm_lua PRIVATE
+target_compile_definitions(hm_lua PUBLIC
     SOL_USING_CXX_LUA=1
 )
 endfunction()

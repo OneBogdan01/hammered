@@ -19,6 +19,8 @@ inline constexpr WindowFlags HIDDEN = SDL_WINDOW_HIDDEN;
 
 // GPU
 using GPUDeviceHandle = SDL_GPUDevice*;
+using ShaderHandle = SDL_GPUShader*;
+using ComputePipelineHandle = SDL_GPUComputePipeline*;
 
 using SwapchainComposition = SDL_GPUSwapchainComposition;
 using PresentMode = SDL_GPUPresentMode;

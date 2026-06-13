@@ -2,6 +2,7 @@
 
 #include "hm_alloy.hpp"
 #include "hm_gpu.hpp"
+#include "hm_shader.hpp"
 #include "renderer.hpp"
 
 static SDL_GPUGraphicsPipeline* pipeline;
@@ -12,13 +13,13 @@ struct Vertex {
 };
 
 static bool create_ui_pipeline(SDL_GPUDevice* device, SDL_Window* window) {
-    SDL_GPUShader* vertex_shader = hm::alloy::LoadShader(device, "ui_canvas.vert", 0, 0, 0, 0);
+    SDL_GPUShader* vertex_shader = hm::gpu::load_shader(device, "ui_canvas.vert", {0, 0, 0, 0});
     if (vertex_shader == nullptr) {
         SDL_Log("Failed to create vertex shader!");
         return false;
     }
 
-    SDL_GPUShader* fragment_shader = hm::alloy::LoadShader(device, "ui_canvas.frag", 0, 1, 0, 0);
+    SDL_GPUShader* fragment_shader = hm::gpu::load_shader(device, "ui_canvas.frag", {0, 1, 0, 0});
     if (fragment_shader == nullptr) {
         SDL_Log("Failed to create fragment shader!");
         return false;
@@ -104,8 +105,7 @@ hm::WindowHandle g_window;
 void hm_setup(hm::App& app) {
     using namespace hm;
 
-    app.add_plugin<WindowPlugin>(
-           WindowConfig{.title = "Rectangle UI", .width = 640, .height = 320})
+    app.add_plugin<WindowPlugin>(WindowConfig{.title = "Rectangle UI", .width = 640, .height = 320})
         .add_plugin<GPUPlugin>();
 
     app.add_systems(Schedule::Startup, [](App& a) {
@@ -115,26 +115,29 @@ void hm_setup(hm::App& app) {
             log::error("hardcoded_shapes needs WindowPlugin and GPUPlugin");
             return;
         }
-         g_device = gpu_plugin->get().get_gpu_handle();
-         g_window = window_plugin->get().get_window_handle();
+        g_device = gpu_plugin->get().get_gpu_handle();
+        g_window = window_plugin->get().get_window_handle();
         if (g_device == nullptr || g_window == nullptr) {
             log::error("GPU device or window was not initialized");
             return;
         }
 
-        if (!create_ui_pipeline(g_device, g_window)) return;
+        if (!create_ui_pipeline(g_device, g_window))
+            return;
         upload_fullscreen_triangle(g_device);
     });
 
     app.add_systems(Schedule::Update, [](App&) {
-        if (g_device == nullptr || g_window == nullptr) return;
+        if (g_device == nullptr || g_window == nullptr)
+            return;
 
         auto* cmdbuf = check_sdl(SDL_AcquireGPUCommandBuffer(g_device));
-        if (cmdbuf == nullptr) return;
+        if (cmdbuf == nullptr)
+            return;
 
         SDL_GPUTexture* swapchain_texture;
-        if (!check_sdl(SDL_WaitAndAcquireGPUSwapchainTexture(
-                cmdbuf, g_window, &swapchain_texture, nullptr, nullptr))) {
+        if (!check_sdl(SDL_WaitAndAcquireGPUSwapchainTexture(cmdbuf, g_window, &swapchain_texture,
+                                                             nullptr, nullptr))) {
             return;
         }
 
